@@ -368,13 +368,22 @@ def main():
                             (5, "Recorded Conversations in Selected Months")):
             assert title in text([sample[page]]), text([sample[page]])
         body = text(sample[6:])
-        for expected in ("Ibid.", "(Jas 1:19–27)", "Luke 10:25–37",
+        for expected in ("Ibid.", "(Jas 1:19)", "Luke 10:25–37",
+                         "Unless otherwise specified, all Bible references in this paper are to the",
+                         "English Standard Version (ESV) (Wheaton, IL: Crossway, 2025).",
                          "Figure 1 presents", "Table 1 selects", "table 2.",
                          "Graph 1 shows", "APPENDIX A", "APPENDIX B",
                          "Park et al.", "Before You Offer a Casserole",
                          "Avery, June,", "Mercer, Anne."):
             assert expected in body, f"Missing example content: {expected}"
         assert "??" not in body
+        # The translation declaration belongs with the first Scripture quotation,
+        # occurs once, and does not create a Bible bibliography entry.
+        declaration = "Unless otherwise specified, all Bible references"
+        assert body.count(declaration) == 1
+        quotation_page = next(page for page in sample[6:] if "(Jas 1:19)" in text([page]))
+        assert declaration in text([quotation_page])
+        assert "English Standard Version" not in text(sample[-1:])
         for page in sample:
             for word in words(page):
                 if word.text in ("Source:", "Note:"):

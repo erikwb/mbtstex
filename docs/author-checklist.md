@@ -27,8 +27,9 @@ The class handles formatting; these decisions depend on the actual writing.
   wording and structure, then attribute and cite. Distinguish hyphens (`-`),
   en dashes (`--`) and em dashes (`---`) in TeX. Italicize transliterations, but
   keep Greek/Hebrew in their own upright script and an appropriate font.
-- **Scripture (pp.38–39,115–117):** identify the translation at first use,
-  indicate exceptions, use SBL abbreviations in citations and full book names in
+- **Scripture (pp.38–39,115–117):** identify the translation in a footnote at the
+  first Scripture quotation, giving its name, abbreviation, publication city,
+  publisher, and year. Indicate exceptions, use SBL abbreviations in citations and full book names in
   prose. Use commas between verses in the same chapter and semicolons when
   changing chapter/book. Follow the instructor's parenthetical/footnote choice.
   Scripture normally does not go in the bibliography.

@@ -12,9 +12,10 @@ uses **TeX Gyre Termes**, a draft substitute. Use
 
 The developed example is a fictional congregational-care study with occasional
 seminary humor. It demonstrates optional front matter, all four heading levels,
-automatic source notes, Scripture references, a block quotation, two tables,
+automatic source notes, Scripture references and a translation declaration,
+a block quotation, two tables,
 a process diagram, a bar graph, linked cross-references, two appendices, and a
-sorted bibliography. Its study, quotations, and ten example sources are
+sorted bibliography. Its study, interview quotation, and ten example sources are
 **invented for demonstration**, not research to cite in an actual assignment.
 
 The project covers the manual's document structures and listed citation
@@ -168,14 +169,22 @@ plain `\printbibliography` does not.
 
 ```latex
 \usepackage{mbts-bible}
-% In the document, at the first use of the translation:
-\mbtsbibleversion{English Standard Version}{ESV}{Wheaton, IL}{Crossway}{2016}
+% Immediately after the first Scripture quotation and its reference:
+\mbtsbibleversion{English Standard Version}{ESV}{Wheaton, IL}{Crossway}{2025}
 % Verify the publication metadata of the edition actually used.
 \mbtsbible{Genesis}{1:1}                 % (Gen 1:1)
 \mbtsbible[ESV]{Romans}{3:21--24, 27--31}
 \mbtsbiblefootnote{Philemon}{4}         % a footnote for a nonbiblical topic
 \mbtsbibleref{1 Corinthians}{13:1--3}   % without parentheses
 ```
+
+Section 3.2 of the manual (p.39) calls for a translation declaration in a
+footnote at the **first Scripture quotation**. `\mbtsbibleversion` prints that
+note with the translation's name, abbreviation, publication city, publisher,
+and year; place it yourself at the first quotation. It does not insert a note
+automatically or infer which edition you used. The main example demonstrates
+this with James 1:19 from the ESV, using Crossway's
+[2025 text edition](https://www.crossway.org/permissions/).
 
 The canonical book abbreviations follow SBL as required by this edition.
 Write full book names in narrative prose. Choose parenthetical references or

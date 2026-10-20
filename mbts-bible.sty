@@ -9,8 +9,9 @@
 \NewDocumentCommand\mbtsbibleref{O{} m m}{\mbtsbook{#2}\ #3\if\relax\detokenize{#1}\relax\else\ #1\fi}
 \NewDocumentCommand\mbtsbible{O{} m m}{(\mbtsbibleref[#1]{#2}{#3})}
 \NewDocumentCommand\mbtsbiblefootnote{O{} m m}{\footnote{\mbtsbibleref[#1]{#2}{#3}.}}
-\newcommand\mbtsbibleversion[5]{\footnote{Unless otherwise indicated, all Scripture
-  quotations are from the \textit{#1} (#2) (#3: #4, #5).}}
+% Manual p.39: attach this note to the first Scripture quotation.
+\newcommand\mbtsbibleversion[5]{\footnote{Unless otherwise specified, all Bible
+  references in this paper are to the \textit{#1} (#2) (#3: #4, #5).}}
 % Manual pp.115-117: SBL abbreviations, without periods for canonical books.
 \mbtsdeclarebiblebook{Genesis}{Gen}
 \mbtsdeclarebiblebook{Exodus}{Exod}
