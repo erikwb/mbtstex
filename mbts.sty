@@ -1,0 +1,253 @@
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{mbts}[2026/10/20 v0.1.0 MBTS course-paper formatting]
+% Based on the 2018 second revised edition and a public MBTS syllabus.
+% See README.md for sources and the fourth-edition verification limitation.
+\RequirePackage{kvoptions}
+\SetupKeyvalOptions{family=mbts,prefix=mbts@}
+\DeclareStringOption[auto]{font}
+\DeclareStringOption[12]{footnotesize}
+\ProcessKeyvalOptions*
+\RequirePackage{etoolbox}
+\RequirePackage{iftex}
+
+\@ifclassloaded{article}{}{%
+  \PackageError{mbts}{Use the mbts class or the 12pt article class}%
+    {This package implements course papers, not book/report dissertations.}}
+\ifnum\@ptsize=2\else
+  \PackageError{mbts}{A 12pt document class is required}%
+    {Use \string\documentclass{mbts} or \string\documentclass[12pt]{article}.}
+\fi
+\if@twocolumn
+  \PackageError{mbts}{Two-column layout is unsupported}{Use a one-column article.}
+\fi
+
+% Font substitution is explicit. font=times makes the required font mandatory.
+\newcommand*\mbts@fontwarning{%
+  \PackageWarningNoLine{mbts}{Using TeX Gyre Termes, NOT Times New Roman.\MessageBreak
+    For submission use LuaLaTeX or XeLaTeX with Times New Roman\MessageBreak
+    installed and font=times. See README.md}}
+\newcommand*\mbts@termes{%
+  \ifPDFTeX
+    \RequirePackage[T1]{fontenc}
+    \RequirePackage{tgtermes}
+  \else
+    \RequirePackage{fontspec}
+    \setmainfont{texgyretermes}[Extension=.otf,
+      UprightFont=*-regular,ItalicFont=*-italic,
+      BoldFont=*-bold,BoldItalicFont=*-bolditalic]
+  \fi
+  \mbts@fontwarning}
+\newcommand*\mbts@times{%
+  \ifPDFTeX
+    \PackageError{mbts}{font=times requires LuaLaTeX or XeLaTeX}%
+      {Change compiler, or use font=termes for a draft.}
+  \else
+    \RequirePackage{fontspec}
+    \IfFontExistsTF{Times New Roman}{\setmainfont{Times New Roman}}{%
+      \PackageError{mbts}{Times New Roman is not installed}%
+        {Install a licensed copy, or use font=termes for a draft.}}
+  \fi}
+\ifdefstring{\mbts@font}{auto}{%
+  \ifPDFTeX
+    \mbts@termes
+  \else
+    \RequirePackage{fontspec}
+    \IfFontExistsTF{Times New Roman}{\setmainfont{Times New Roman}}{\mbts@termes}
+  \fi
+}{\ifdefstring{\mbts@font}{times}{\mbts@times}{%
+  \ifdefstring{\mbts@font}{termes}{\mbts@termes}{%
+    \ifdefstring{\mbts@font}{none}{}{%
+      \PackageError{mbts}{Unknown font option '\mbts@font'}%
+        {Choose auto, times, termes, or none.}}}}}
+
+\RequirePackage[letterpaper,margin=1in,footskip=.5in]{geometry}
+\RequirePackage{setspace}
+\RequirePackage[bottom,splitrule]{footmisc}
+\RequirePackage{titlesec}
+\RequirePackage{indentfirst}
+
+% Public lengths can be overridden in the preamble for assignment variations.
+\newlength\mbtsindent
+\setlength\mbtsindent{.5in}
+\newlength\mbtssinglebaseline
+\setlength\mbtssinglebaseline{14.4pt}
+\newlength\mbtsheadbefore
+\setlength\mbtsheadbefore{2\mbtssinglebaseline}
+\newlength\mbtsheadafter
+\setlength\mbtsheadafter{\mbtssinglebaseline}
+\newlength\mbts@bodybaseline
+\setlength\mbts@bodybaseline{24pt}
+\newlength\mbtsentrysep
+\setlength\mbtsentrysep{\mbtssinglebaseline}
+\newlength\mbtstitletop
+\setlength\mbtstitletop{1in}
+\newlength\mbtstitlegap
+\setlength\mbtstitlegap{.5in}
+\newlength\mbtsfootnoterulewidth
+% Interpret the older manual's "22 spaces" using this font's interword space.
+\AtBeginDocument{%
+  \ifdim\mbtsfootnoterulewidth=0pt
+    \setlength\mbtsfootnoterulewidth{\fontdimen2\font}%
+    \multiply\mbtsfootnoterulewidth by 22
+  \fi}
+
+\def\ps@mbts{%
+  \let\@oddhead\@empty\let\@evenhead\@empty
+  \def\@oddfoot{\hfil\normalfont\normalsize\thepage\hfil}%
+  \let\@evenfoot\@oddfoot}
+\let\ps@plain\ps@mbts
+\pagestyle{mbts}
+
+% Four unnumbered levels, retaining normal LaTeX section/TOC semantics.
+\setcounter{secnumdepth}{0}
+\setcounter{tocdepth}{1}
+\titleformat{\section}[block]
+  {\normalfont\normalsize\setstretch{1}\bfseries\filcenter}{}{0pt}{}
+\titleformat{\subsection}[block]
+  {\normalfont\normalsize\setstretch{1}\filcenter}{}{0pt}{}
+\titleformat{\subsubsection}[block]
+  {\normalfont\normalsize\setstretch{1}\bfseries\filright}{}{0pt}{}
+\titleformat{\paragraph}[block]
+  {\normalfont\normalsize\setstretch{1}\filright}{}{0pt}{}
+% Compensate for the following paragraph's double-spaced baseline so that
+% the heading-to-body distance is two single lines, not nearly three.
+\newlength\mbts@headgap
+\titlespacing{\section}{0pt}{\mbtsheadbefore}{\mbts@headgap}
+\titlespacing{\subsection}{0pt}{\mbtsheadbefore}{\mbts@headgap}
+\titlespacing{\subsubsection}{0pt}{\mbtsheadbefore}{\mbts@headgap}
+\titlespacing{\paragraph}{0pt}{\mbtsheadbefore}{\mbts@headgap}
+
+% Footnotes are single spaced, with a first-line indent (not a hanging indent).
+\renewcommand*\footnotesize{%
+  \@setfontsize\footnotesize{\mbts@footnotesize}{\mbtssinglebaseline}}
+\renewcommand*\@makefnmark{%
+  \hbox{\normalfont\footnotesize\raisebox{.5ex}[0pt][0pt]{\@thefnmark}}}
+\long\def\@makefntext#1{%
+  \raggedright\setlength\parindent{\mbtsindent}%
+  \setlength\parskip{0pt}%
+  \noindent\hspace*{\mbtsindent}\@makefnmark\nobreak\hspace{.15em}#1}
+\renewcommand*\pagefootnoterule{%
+  \kern-3pt\hrule width \mbtsfootnoterulewidth height .4pt\kern2.6pt}
+\let\mpfootnoterule\pagefootnoterule
+% footmisc's splitrule supplies a full-width separator on continuation pages.
+
+\AtBeginDocument{%
+  \doublespacing
+  \setlength\mbts@bodybaseline{\baselineskip}%
+  \setlength\mbts@headgap{%
+    \dimexpr\mbtsheadafter+\mbtssinglebaseline-\mbts@bodybaseline\relax}%
+  \raggedright
+  \setlength\parindent{\mbtsindent}%
+  \setlength\parskip{0pt}%
+  \raggedbottom
+  \frenchspacing
+  \clubpenalty=10000
+  \widowpenalty=10000
+  \displaywidowpenalty=10000
+  % A strut at the start of each note leaves a blank line between notes.
+  \setlength\footnotesep{\dimexpr\mbtssinglebaseline+10pt\relax}%
+  \setlength{\skip\footins}{\mbtssinglebaseline}%
+  \@ifpackageloaded{hyperref}{\hypersetup{hidelinks}}{}%
+}
+
+% Title metadata. Standard \title, \author, and \date remain available.
+\def\mbts@institution{Midwestern Baptist Theological Seminary}
+\def\mbts@papertype{A Research Paper}
+\def\mbts@course{}
+\def\mbts@professor{}
+\def\mbts@location{Kansas City, Missouri}
+\define@key{mbtsmeta}{institution}{\def\mbts@institution{#1}}
+\define@key{mbtsmeta}{paper-type}{\def\mbts@papertype{#1}}
+\define@key{mbtsmeta}{course}{\def\mbts@course{#1}}
+\define@key{mbtsmeta}{professor}{\def\mbts@professor{#1}}
+\define@key{mbtsmeta}{location}{\def\mbts@location{#1}}
+\newcommand*\mbtssetup[1]{\setkeys{mbtsmeta}{#1}}
+\renewcommand\maketitle{%
+  \ifx\mbts@course\@empty
+    \PackageWarningNoLine{mbts}{No course supplied; use \string\mbtssetup{course=...}}%
+  \fi
+  \begin{titlepage}
+    % Disable just the title-page anchor, avoiding duplicate page.1 with hyperref.
+    \@ifpackageloaded{hyperref}{\hypersetup{pageanchor=false}}{}%
+    \normalfont\normalsize\doublespacing\centering
+    \setlength\parindent{0pt}%
+    \vspace*{\dimexpr\mbtstitletop-\baselineskip\relax}%
+    \MakeUppercase{\mbts@institution}\par
+    \vspace{\the\mbtstitlegap plus 1fill}
+    \MakeUppercase{\@title}\par
+    \vspace{\the\mbtstitlegap plus 1fill}
+    \MakeUppercase{\mbts@papertype}\par
+    SUBMITTED IN PARTIAL FULFILLMENT\par
+    OF THE REQUIREMENTS FOR THE COURSE\par
+    \MakeUppercase{\mbts@course}\par
+    \ifx\mbts@professor\@empty\else
+      \MakeUppercase{\mbts@professor}\par
+    \fi
+    \vspace{\the\mbtstitlegap plus 1fill}
+    BY\par
+    \MakeUppercase{\@author}\par
+    \vspace{\the\mbtstitlegap plus 1fill}
+    \MakeUppercase{\mbts@location}\par
+    \MakeUppercase{\@date}\par
+  \end{titlepage}
+  \pagenumbering{arabic}%
+}
+
+\newcommand*\mbtsfrontmatter{\clearpage\pagenumbering{roman}}
+\newcommand*\mbtsmainmatter{\clearpage\pagenumbering{arabic}}
+\newcommand*\mbts@majorheading[1]{%
+  \par{\centering\normalfont\normalsize\setstretch{1}
+    \MakeUppercase{#1}\par}%
+  \nobreak\vspace{\mbtsheadafter}%
+  \@afterindenttrue\@afterheading}
+\renewcommand*\contentsname{CONTENTS}
+\renewcommand\tableofcontents{%
+  \clearpage\mbts@majorheading{\contentsname}%
+  \begingroup\setstretch{1}\@starttoc{toc}\endgroup}
+\renewcommand*\l@section{\@dottedtocline{1}{0pt}{0pt}}
+
+% Block quotations retain the body font and indent only the left edge.
+\newenvironment{mbtsquote}{%
+  \par\addvspace{\mbtssinglebaseline}%
+  \begingroup\setstretch{1}
+  \list{}{%
+    \setlength\leftmargin{\mbtsindent}%
+    \setlength\rightmargin{0pt}%
+    \setlength\listparindent{\mbtsindent}%
+    \setlength\itemindent{0pt}%
+    \setlength\topsep{0pt}\setlength\partopsep{0pt}%
+    \setlength\parsep{0pt}\setlength\itemsep{0pt}}%
+  \item\relax
+}{%
+  \endlist\endgroup\par\addvspace{\mbtssinglebaseline}\@endpetrue}
+
+% Manual bibliography: supply formatted entries in alphabetical order.
+\newcommand*\mbtsbibliographyname{BIBLIOGRAPHY}
+\newenvironment{mbtsbibliography}{%
+  \clearpage\mbts@majorheading{\mbtsbibliographyname}%
+  \begingroup\setstretch{1}\raggedright
+  \list{}{%
+    \setlength\leftmargin{\mbtsindent}%
+    \setlength\itemindent{-\mbtsindent}%
+    \setlength\itemsep{\mbtsentrysep}%
+    \setlength\parsep{0pt}\setlength\topsep{0pt}\setlength\partopsep{0pt}}%
+}{\endlist\endgroup}
+\newcommand\mbtsbibitem[1]{\item\relax #1}
+
+% Optional biblatex integration. Citation wording belongs to the chosen style.
+\AtBeginDocument{%
+  \@ifpackageloaded{biblatex}{%
+    \defbibheading{mbtsbibliography}[\mbtsbibliographyname]{%
+      \clearpage\mbts@majorheading{#1}}%
+    \renewcommand*\bibfont{\normalfont\normalsize\setstretch{1}\raggedright}%
+    \setlength\bibhang{\mbtsindent}%
+    \setlength\bibitemsep{\mbtsentrysep}%
+    \setlength\bibparsep{0pt}%
+  }{}%
+}
+\newcommand*\mbtsprintbibliography[1][]{%
+  \@ifpackageloaded{biblatex}{%
+    \printbibliography[heading=mbtsbibliography,#1]}{%
+    \PackageError{mbts}{Load biblatex before printing a database bibliography}%
+      {Or use the mbtsbibliography environment for manual entries.}}}
+\endinput

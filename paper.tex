@@ -1,0 +1,65 @@
+% Draft-friendly default. For submission with Times New Roman installed:
+% \documentclass[font=times]{mbts}  % compile with LuaLaTeX or XeLaTeX
+\documentclass{mbts}
+
+\title{The Title of Your Paper}
+\author{Your Name}
+\date{October 20, 2026}
+\mbtssetup{
+  course={HT 0000 Name of Course},
+  paper-type={A Research Paper},
+  location={Kansas City, Missouri}
+}
+
+\begin{document}
+\maketitle
+
+% For longer papers, uncomment the following three commands:
+% \mbtsfrontmatter
+% \tableofcontents
+% \mbtsmainmatter
+% The main text will still begin on page 1.
+
+\section{Introduction}
+Replace this paragraph with your introduction and thesis. The first line of each
+paragraph is indented, the body is double spaced, and the right margin is ragged.
+Add a source note immediately after the punctuation.\footnote{First Last,
+\textit{Title of the Book} (City: Publisher, Year), page.}
+
+\section{Main Argument}
+Develop your argument here. Use the four heading levels only as needed, and
+capitalize their titles yourself. The citation below is a placeholder for a
+previously cited source.\footnote{Last, \textit{Short Title}, page.}
+
+\subsection{A Second-Level Heading}
+Provide evidence and explain how it supports your thesis. Use the next
+environment for a quotation that would occupy five or more lines of body text.
+The text inside this example is instructional placeholder text, not a quotation
+from a published source.
+
+\begin{mbtsquote}
+Replace this material with the exact words of your source. Block quotations
+are single spaced and indented at the left, without surrounding quotation
+marks. Preserve the source's wording and punctuation, and add the appropriate
+footnote after the final punctuation. Check the quotation and its page number
+against the source before submitting the paper.
+\end{mbtsquote}
+
+\subsubsection{A Third-Level Heading}
+This level is bold and aligned with the left margin.
+
+\paragraph{A Fourth-Level Heading}
+This level is regular type and aligned with the left margin. It occupies its
+own line, even though the LaTeX command is named paragraph.
+
+\section{Conclusion}
+Restate the result of your argument and explain its significance. Replace the
+sample citations and bibliography with your own verified source information.
+
+\begin{mbtsbibliography}
+\mbtsbibitem{Last, First. \textit{Title of the Book}. City: Publisher, Year.}
+\mbtsbibitem{Surname, Given Name. \textit{Another Book with a Longer Title:
+A Subtitle That Demonstrates the Hanging Indent on Subsequent Lines}.
+City: Publisher, Year.}
+\end{mbtsbibliography}
+\end{document}
