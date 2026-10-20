@@ -1,0 +1,209 @@
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{mbts-structure}[2026/10/20 v0.2.0 MBTS document structures]
+% Internal companion to mbts.sty. References are printed manual page numbers.
+\RequirePackage{xparse}
+\RequirePackage{caption}
+\RequirePackage{newfloat}
+\RequirePackage{array}
+\RequirePackage{graphicx}
+
+\def\mbts@institution{Midwestern Baptist Theological Seminary}
+\def\mbts@papertype{A Research Paper}
+\ifmbts@review\def\mbts@papertype{A Book Review}\fi
+\def\mbts@course{}
+\def\mbts@professor{}
+\def\mbts@degree{}
+\def\mbts@location{Kansas City, Missouri}
+\define@key{mbtsmeta}{institution}{\def\mbts@institution{#1}}
+\define@key{mbtsmeta}{paper-type}{\def\mbts@papertype{#1}}
+\define@key{mbtsmeta}{course}{\def\mbts@course{#1}}
+\define@key{mbtsmeta}{professor}{\def\mbts@professor{#1}}
+\define@key{mbtsmeta}{degree}{\def\mbts@degree{#1}}
+\define@key{mbtsmeta}{location}{\def\mbts@location{#1}}
+\newcommand*\mbtssetup[1]{\setkeys{mbtsmeta}{#1}}
+\newcommand*\mbts@required[2]{\ifx#1\@empty
+  \PackageError{mbts}{Missing #2}{Supply #2 before making the title page.}\fi}
+\newcommand*\mbts@titleline[1]{\MakeUppercase{#1}\par}
+% n Enter presses mean n baselines, including the ordinary next baseline.
+\newcommand*\mbts@titlegap[1]{\vskip\dimexpr#1\mbtstitlebaseline-\mbtstitlebaseline\relax}
+\newsavebox\mbts@titlebox
+\renewcommand\maketitle{%
+  \clearpage
+  \ifmbts@dissertation
+    \mbts@required\mbts@degree{degree}\pagenumbering{roman}%
+  \else\mbts@required\mbts@course{course}\fi
+  \thispagestyle{empty}%
+  \@ifpackageloaded{hyperref}{\hypersetup{pageanchor=false}}{}%
+  \setbox\mbts@titlebox=\vbox{\hsize=\textwidth
+    \normalfont\normalsize\setstretch{1}\centering
+    \baselineskip=\mbtstitlebaseline\parskip=0pt\parindent=0pt
+    \ifmbts@dissertation
+      % p.85's explicit two-inch instruction takes precedence over p.90's
+      % inconsistent "fourth line" annotation; six-line gaps follow p.90.
+      \vskip1in
+      \mbts@titleline{\mbts@institution}\mbts@titlegap{6}
+      \mbts@titleline{\@title}\mbts@titlegap{6}
+      \mbts@titleline{A Dissertation Submitted to the}\mbts@titlegap{2}
+      \mbts@titleline{Faculty of \mbts@institution}\mbts@titlegap{2}
+      \mbts@titleline{in Candidacy for the Degree of}\mbts@titlegap{2}
+      \mbts@titleline{\mbts@degree}\mbts@titlegap{6}
+      \mbts@titleline{Office of Doctoral Studies}\mbts@titlegap{6}
+    \else
+      \vskip3\mbtstitlebaseline
+      \mbts@titleline{\mbts@institution}\mbts@titlegap{8}
+      \mbts@titleline{\@title}\mbts@titlegap{8}
+      \mbts@titleline{\mbts@papertype}\mbts@titlegap{2}
+      \mbts@titleline{Submitted in Partial Fulfillment}\mbts@titlegap{2}
+      \mbts@titleline{of the Requirements for the Course}\mbts@titlegap{2}
+      \mbts@titleline{\mbts@course}%
+      \ifx\mbts@professor\@empty\else
+        \mbts@titlegap{2}\mbts@titleline{\mbts@professor}% assignment override
+      \fi
+      \mbts@titlegap{8}
+    \fi
+    \mbts@titleline{By}\mbts@titlegap{2}\mbts@titleline{\@author}%
+    \ifmbts@dissertation\mbts@titlegap{6}\else\mbts@titlegap{8}\fi
+    \mbts@titleline{\mbts@location}\mbts@titlegap{2}\mbts@titleline{\@date}}
+  \ifdim\dimexpr\ht\mbts@titlebox+\dp\mbts@titlebox\relax>\textheight
+    \PackageError{mbts}{Title page exceeds the available height}%
+      {Shorten the title/metadata or obtain an assignment-specific layout exception.}%
+  \fi
+  \nointerlineskip\box\mbts@titlebox\clearpage
+  \@ifpackageloaded{hyperref}{\hypersetup{pageanchor=true}}{}%
+  \ifmbts@dissertation\else\pagenumbering{arabic}\fi}
+
+\newcommand*\mbtsfrontmatter{\clearpage\pagenumbering{roman}}
+\newcommand*\mbtsmainmatter{\clearpage\pagenumbering{arabic}}
+\newcommand*\mbts@majorheading[2][\mbtsheadafter]{%
+  \par{\centering\normalfont\normalsize\setstretch{1}\MakeUppercase{#2}\par}%
+  \nobreak\vspace{#1}\@afterindenttrue\@afterheading}
+\newcommand*\mbts@contentsentry[1]{%
+  \@ifpackageloaded{hyperref}{\phantomsection}{}%
+  \ifmbts@dissertation\addcontentsline{toc}{chapter}{\MakeUppercase{#1}}%
+  \else\addcontentsline{toc}{section}{\MakeUppercase{#1}}\fi}
+\newcommand*\mbts@bibcontents{\ifmbts@dissertation\mbts@contentsentry{Bibliography}\fi}
+\renewcommand*\contentsname{CONTENTS}
+\renewcommand\tableofcontents{\clearpage\mbts@majorheading{\contentsname}%
+  \begingroup\setstretch{1}\@starttoc{toc}\endgroup}
+\renewcommand*\l@section{\@dottedtocline{1}{\ifmbts@dissertation .5in\else 0pt\fi}{0pt}}
+\renewcommand*\l@subsection{\@dottedtocline{2}{1in}{0pt}}
+
+% A starred named page is omitted from the contents. Abstract is compulsory.
+\NewDocumentEnvironment{mbtspage}{s m}{\clearpage
+  \mbts@majorheading[\mbts@headgap]{#2}\IfBooleanF{#1}{\mbts@contentsentry{#2}}\doublespacing
+}{\par\clearpage}
+\renewenvironment{abstract}{\begin{mbtspage}{Abstract}}{\end{mbtspage}}
+\newenvironment{mbtsvita}{\begin{mbtspage}{Vita}\centering\setstretch{1}}{\end{mbtspage}}
+\newcommand*\mbtsvitasection[1]{\par\addvspace{\mbtssinglebaseline}\MakeUppercase{#1}\par}
+\newcommand*\mbtscopyright[1]{\clearpage\thispagestyle{empty}%
+  \vspace*{\fill}{\centering\setstretch{1}\copyright\ #1 \@author\par
+  All rights reserved\par}\vspace*{\fill}\clearpage}
+\newcommand*\mbtsdedication[1]{\clearpage\thispagestyle{empty}%
+  \vspace*{\dimexpr\paperheight/3-1in\relax}%
+  {\centering\normalfont #1\par}\clearpage}
+\newcommand*\mbtsepigraph[2]{\clearpage\thispagestyle{empty}%
+  \vspace*{\dimexpr\paperheight/3-1in\relax}%
+  {\centering\setstretch{1}\begin{minipage}{.8\textwidth}#1\par
+    \raggedleft\textemdash #2\end{minipage}\par}\clearpage}
+% Supplied by the seminary. This command must precede \maketitle.
+\NewDocumentCommand\mbtsapproval{O{1} m}{\clearpage
+  \@ifpackageloaded{pdfpages}{}{\PackageError{mbts}{Load pdfpages for approval PDF}%
+    {Add \string\usepackage{pdfpages} in the preamble.}}%
+  \@ifpackageloaded{hyperref}{\hypersetup{pageanchor=false}}{}%
+  \includepdf[pages={#1},pagecommand={\thispagestyle{empty}}]{#2}%
+  \@ifpackageloaded{hyperref}{\hypersetup{pageanchor=true}}{}\setcounter{page}{1}}
+
+\newif\ifmbts@appendices
+\ifmbts@dissertation
+  % secnumdepth=0 suppresses subsection numbers but retains chapter numbering.
+  \titleformat{\chapter}[display]{\normalfont\normalsize\setstretch{1}\filcenter}
+    {\MakeUppercase{\chaptertitlename}\ \thechapter}{\mbtssinglebaseline}{\MakeUppercase}
+  \titlespacing{\chapter}{0pt}{-\mbtssinglebaseline}{\mbts@headgap}
+  \renewcommand*\thefootnote{\arabic{footnote}}
+  \renewcommand*\l@chapter[2]{\par\addvspace{\mbtssinglebaseline}%
+    \begingroup\normalfont\@dottedtocline{0}{0pt}{0pt}{#1}{#2}\endgroup}
+  % Include the chapter designation in the entry itself, so appendix prefixes
+  % cannot change earlier entries when the .toc file is read next run.
+  \patchcmd{\@chapter}{\protect\numberline{\thechapter}#1}
+    {\MakeUppercase{\@chapapp}\ \thechapter\space\MakeUppercase{#1}}{}%
+    {\PackageError{mbts}{Could not configure chapter contents}{Unsupported report class.}}
+  \let\mbts@originalappendix\appendix
+  \renewcommand\appendix{\mbts@appendicestrue\mbts@originalappendix}
+  \renewcommand\part[1]{\clearpage\refstepcounter{part}\thispagestyle{empty}%
+    \mbts@contentsentry{Part {\thepart} #1}%
+    \vspace*{.25\textheight}\mbts@majorheading{Part \thepart}%
+    \mbts@majorheading{#1}\clearpage}
+  \newcommand\mbtsappendix[1]{\ifmbts@appendices\else\appendix\fi\chapter{#1}}
+\else
+  \newcounter{mbtsappendix}
+  \renewcommand*\thembtsappendix{\Alph{mbtsappendix}}
+  \newcommand\mbtsappendix[1]{\clearpage\mbts@appendicestrue
+    \refstepcounter{mbtsappendix}\mbts@majorheading{Appendix \thembtsappendix}%
+    \mbts@majorheading[\mbts@headgap]{#1}\mbts@contentsentry{Appendix \thembtsappendix\space #1}}
+\fi
+\ifmbts@fifthlevel
+  \ifmbts@dissertation\else\PackageError{mbts}{Fifth level is dissertation-only}%
+    {It also requires a PhD committee chair's permission.}\fi
+  \titleformat{\subparagraph}[runin]{\normalfont\normalsize\bfseries}{}{0pt}{}[.]
+  \titlespacing*{\subparagraph}{0pt}{\mbtsheadbefore}{1em}
+\else
+  \renewcommand\subparagraph{\PackageError{mbts}{Fifth-level heading not enabled}%
+    {Only an approved PhD dissertation may use fifthlevel.}}
+\fi
+
+% p.83: hanging entry, block-indented annotation, blank lines between elements.
+\newenvironment{mbtsannotatedbibliography}{\clearpage
+  \mbts@majorheading{Annotated Bibliography}\begingroup\setstretch{1}
+}{\par\endgroup}
+\newcommand\mbtsannotation[2]{\par\addvspace{\mbtsentrysep}%
+  {\parindent=0pt\hangindent=\mbtsindent\hangafter=1 #1\par}%
+  \nobreak\vspace{\mbtsentrysep}%
+  {\leftskip=\mbtsindent\parindent=0pt #2\par}}
+\newcommand\mbtsreviewentry[3]{{\par\setstretch{1}\parindent=0pt
+  \hangindent=\mbtsindent\hangafter=1 #1 #2 pp.\ #3.\par}}
+\NewDocumentCommand\mbtsreviewcite{s m}{(\IfBooleanTF{#1}{pp.}{p.}\ #2)}
+
+% Appendix 5: labels and titles on separate lines, uppercase, single blank lines.
+\DeclareCaptionLabelFormat{mbts}{\MakeUppercase{#1}\ #2}
+\DeclareCaptionLabelSeparator{mbts}{\\[\mbtssinglebaseline]}
+\DeclareCaptionTextFormat{mbts}{\MakeUppercase{#1}}
+% captionof can include a hyperref anchor in the caption text. Protect the
+% anchor from expansion during Unicode uppercasing while still casing its text.
+\AddToHook{begindocument/end}{%
+  \let\mbts@captionanchor\caption@makeanchor
+  \protected\def\caption@makeanchor#1{\mbts@captionanchor{#1}}}
+\captionsetup{font={normalsize,singlespacing},labelformat=mbts,labelsep=mbts,
+  textformat=mbts,justification=centering,singlelinecheck=false,
+  skip=\mbtssinglebaseline,position=top}
+\DeclareFloatingEnvironment[name=Graph,listname={LIST OF GRAPHS},within=none]{graph}
+\DeclareFloatingEnvironment[name=Illustration,listname={LIST OF ILLUSTRATIONS},within=none]{illustration}
+\ifmbts@dissertation
+  \counterwithout{table}{chapter}\counterwithout{figure}{chapter}
+\fi
+\newcommand*\mbts@list[2]{\clearpage\mbts@majorheading{#1}%
+  \begingroup\setstretch{1}\@starttoc{#2}\endgroup}
+\renewcommand\listoftables{\mbts@list{List of Tables}{lot}}
+\renewcommand\listoffigures{\mbts@list{List of Figures}{lof}}
+\renewcommand\listofgraphs{\mbts@list{List of Graphs}{lograph}}
+\renewcommand\listofillustrations{\mbts@list{List of Illustrations}{loillustration}}
+\newcommand\mbtsfiguresource[1]{\par\noindent\begingroup\setstretch{1}
+  \raggedright Source: #1\par\endgroup}
+\newcommand\mbtsfigurenote[1]{\par\noindent\begingroup\setstretch{1}
+  \raggedright Note: #1\par\endgroup}
+% The content argument is measured; oversized in-text objects generate an error
+% in submission mode, and a warning in draft mode. It includes caption/source.
+\newsavebox\mbts@visualbox
+\NewDocumentEnvironment{mbtsvisual}{m m +b}{\par\addvspace{\mbtssinglebaseline}%
+  \begin{lrbox}{\mbts@visualbox}\begin{minipage}{\linewidth}\setstretch{1}
+  \captionsetup{type=#1}\caption{#2}#3\end{minipage}\end{lrbox}%
+  \ifmbts@appendices\else
+    \ifdim\dimexpr\ht\mbts@visualbox+\dp\mbts@visualbox\relax>.5\textheight
+      \ifmbts@submission\PackageError{mbts}{Visual exceeds half a page}%
+        {Move this visual into an appendix, as required on page 112.}%
+      \else\PackageWarning{mbts}{Visual exceeds half a page; move it to an appendix}\fi
+    \fi
+  \fi
+  \noindent\usebox\mbts@visualbox\par\addvspace{\mbtssinglebaseline}
+}{}
+\newenvironment{mbtstabular}[1]{\begin{tabular}{#1}\hline\hline}{\end{tabular}}
+\endinput

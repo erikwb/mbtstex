@@ -1,0 +1,26 @@
+\ProvidesFile{mbts.cbx}[2026/10/20 v0.2.0 MBTS fourth-edition notes]
+\RequireCitationStyle{verbose-ibid}
+\ExecuteBibliographyOptions{autocite=footnote,citetracker=context,
+  ibidtracker=constrict,loccittracker=constrict,pagetracker=true,
+  maxcitenames=3,mincitenames=1,uniquename=false,uniquelist=false}
+\DefineBibliographyStrings{english}{ibidem={Ibid\adddot}}
+\DeclareFieldFormat{postnote}{#1}
+\DeclareFieldFormat{multipostnote}{#1}
+\DeclareLabelname[reference]{\field{shortauthor}}
+\DeclareLabeltitle[review]{\field{shorttitle}\field{title}\field{reviewtitle}}
+\DeclareFieldFormat[mbtscourse]{citetitle}{%
+  \iffieldequalstr{entrysubtype}{paper}{\mkbibquote{#1\isdot}}{#1}}
+\newtoggle{mbts:full}
+\renewbibmacro*{cite:full}{%
+  \global\toggletrue{mbts:full}%
+  \printtext[bibhypertarget]{\usedriver
+    {\toggletrue{mbts:note}\DeclareNameAlias{sortname}{given-family}}
+    {\thefield{entrytype}}}}
+\renewbibmacro*{cite:citepages}{\global\togglefalse{mbts:full}}
+\renewbibmacro*{cite:postnote}{\iftoggle{mbts:full}{}{%
+  \iftoggle{cbx:loccit}{}{\usebibmacro{postnote}}}}
+% Short titles are always retained: legal for single works and unambiguous
+% when more than one work by an author is cited (manual pp.32-33).
+\renewbibmacro*{cite:short}{\printnames{labelname}%
+  \setunit{\addcomma\space}\printtext[bibhyperlink]{\printfield[citetitle]{labeltitle}}}
+\endinput

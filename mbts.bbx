@@ -1,0 +1,270 @@
+\ProvidesFile{mbts.bbx}[2026/10/20 v0.2.0 MBTS fourth-edition bibliography]
+\RequireBibliographyStyle{authortitle}
+\DeclareSortingTemplate{mbts}{
+  \sort{\field{presort}}
+  \sort[final]{\field{sortkey}}
+  \sort{\name{sortname}\name{author}\name{editor}\name{translator}
+    \field{sorttitle}\field{maintitle}\field{title}}
+  \sort{\field{sorttitle}\field{maintitle}\field{title}}
+  \sort{\field{year}}\sort{\field{volume}}}
+\DeclareStyleSourcemap{\maps[datatype=bibtex]{\map{\pertype{reference}
+  \step[fieldsource=title]\step[fieldset=sortkey,origfieldval]}}}
+\ExecuteBibliographyOptions{sorting=mbts,maxbibnames=999,minbibnames=999,
+  giveninits=false,dateabbrev=false,date=long,isbn=false,doi=false,url=true,dashed=false}
+\newtoggle{mbts:note}
+\newtoggle{mbts:inverted}
+\DeclareNameAlias{sortname}{family-given/given-family}
+\DeclareNameAlias{default}{given-family}
+\renewcommand*\subtitlepunct{\addcolon\space}
+\DeclareDelimFormat{multinamedelim}{\addcomma\space}
+\DeclareDelimFormat{finalnamedelim}{\ifboolexpr{test {\ifnumgreater{\value{liststop}}{2}} or togl {mbts:inverted}}%
+  {\finalandcomma}{}\addspace\bibstring{and}\space}
+\DeclareFieldFormat{title}{\mkbibemph{#1}}
+\DeclareFieldFormat{citetitle}{\mkbibemph{#1}}
+\DeclareFieldFormat[article,incollection,inbook,inreference,review,thesis,online,
+  mbtscourse,mbtslecture,mbtspodcast,mbtsvideo,mbtsresolution]{title}{\mkbibquote{#1\isdot}}
+\DeclareFieldFormat[article,incollection,inbook,inreference,review,thesis,online,
+  mbtscourse,mbtslecture,mbtspodcast,mbtsvideo,mbtsresolution]{citetitle}{\mkbibquote{#1\isdot}}
+\DeclareFieldFormat{booktitle}{\mkbibemph{#1}}
+\DeclareFieldFormat{maintitle}{\mkbibemph{#1}}
+\DeclareFieldFormat{journaltitle}{\mkbibemph{#1}}
+\DeclareFieldFormat{reviewtitle}{\mkbibemph{#1}}
+\DeclareFieldFormat{pages}{#1}
+\DeclareFieldFormat{postnote}{#1}
+\DeclareFieldFormat{volume}{#1}
+\DeclareFieldFormat{volumes}{#1}
+\DeclareFieldFormat{type}{#1\isdot}
+\DeclareFieldFormat{initial}{\MakeCapital{#1}\isdot}
+\DeclareFieldFormat{url}{\url{#1}}
+\DeclareFieldFormat{mbtsword}{\mkbibquote{#1}}
+\DeclareFieldFormat{plain}{#1}
+\renewcommand*\bibnamedash{\textunderscore\textunderscore\textunderscore
+  \textunderscore\textunderscore\textunderscore}
+
+% Exclude obligatory note-only sources and the four conditional categories.
+% `keywords={include-bibliography}` opts a frequently used/critical item in;
+% `keywords={notes-only}` opts a manuscript item out when citing its collection.
+\defbibfilter{mbts}{not type=mbtsperformance and not type=mbtsresolution
+  and not keyword=notes-only
+  and ( not type=online or keyword=include-bibliography or subtype=database )
+  and ( not type=mbtspodcast or keyword=include-bibliography )}
+
+\newbibmacro*{mbts:unit}{\iftoggle{mbts:note}{\setunit{\addcomma\space}}{\newunit\newblock}}
+\newbibmacro*{mbts:date}{\iffieldundef{mbtsdate}{\printdate}{%
+  \iftoggle{mbts:note}{\printfield{mbtsdate}}{\printfield[initial]{mbtsdate}}}}
+\newcommand*\ifmbtsintro{\ifboolexpr{
+  test {\iffieldequalstr{entrysubtype}{introduction}} or
+  test {\iffieldequalstr{entrysubtype}{preface}} or
+  test {\iffieldequalstr{entrysubtype}{foreword}} or
+  test {\iffieldequalstr{entrysubtype}{forward}}}}
+\newbibmacro*{mbts:title}{\printtext[title]{\printfield[plain]{title}%
+  \setunit{\subtitlepunct}\printfield[plain]{subtitle}}}
+\newbibmacro*{mbts:booktitle}{\printtext[booktitle]{\printfield[plain]{booktitle}%
+  \setunit{\subtitlepunct}\printfield[plain]{booksubtitle}}}
+\newbibmacro*{mbts:maintitle}{\printtext[maintitle]{\printfield[plain]{maintitle}%
+  \setunit{\subtitlepunct}\printfield[plain]{mainsubtitle}}}
+\newbibmacro*{mbts:names}[1]{\iftoggle{mbts:note}
+  {\printnames[given-family]{#1}}
+  {\usebibmacro{bbx:dashcheck}{\bibnamedash}{\toggletrue{mbts:inverted}%
+    \printnames[sortname]{#1}\togglefalse{mbts:inverted}\usebibmacro{bbx:savehash}}}}
+\newbibmacro*{mbts:creator}{%
+  \ifnameundef{author}{\ifnameundef{editor}{}{\usebibmacro{mbts:names}{editor}%
+    \setunit{\addcomma\space}\ifnumgreater{\value{editor}}{1}{\printtext{eds\adddot}}{\printtext{ed\adddot}}%
+    \clearname{editor}}}{\usebibmacro{mbts:names}{author}}%
+  \usebibmacro{mbts:unit}}
+\newbibmacro*{mbts:editor}{\ifnameundef{editor}{}{\usebibmacro{mbts:unit}%
+  \iftoggle{mbts:note}{\printtext{ed\adddot\space}}{\printtext{Edited by\space}}%
+  \printnames[given-family]{editor}}}
+\newbibmacro*{mbts:translator}{\ifnameundef{translator}{}{\usebibmacro{mbts:unit}%
+  \iftoggle{mbts:note}{\printtext{trans\adddot\space}}{\printtext{Translated by\space}}%
+  \printnames[given-family]{translator}}}
+\newbibmacro*{mbts:edition}{\iffieldundef{edition}{}{\usebibmacro{mbts:unit}%
+  \ifboolexpr{not togl {mbts:note} and test {\iffieldequalstr{edition}{rev. ed.}}}
+    {\printtext{Rev\adddot\space ed\adddot}}{\printfield{edition}}}}
+\newbibmacro*{mbts:series}{\iffieldundef{series}{}{\usebibmacro{mbts:unit}%
+  \printfield{series}\setunit{\addspace}\printfield{number}}}
+\newbibmacro*{mbts:pubdata}{\printlist{location}\setunit*{\addcolon\space}%
+  \printlist{publisher}\setunit*{\addcomma\space}\usebibmacro{mbts:date}}
+\newbibmacro*{mbts:publication}{\iftoggle{mbts:note}
+  {\setunit{\addspace}\printtext[parens]{%
+    \iffieldundef{origyear}{}{\printfield{origyear}\setunit{\addsemicolon\space}\printtext{repr\adddot\space}}%
+    \usebibmacro{mbts:pubdata}}}
+  {\newunit\newblock\iffieldundef{origyear}{}{\printfield{origyear}\newunit\printtext{Reprint}\setunit{\addcomma\space}}%
+    \usebibmacro{mbts:pubdata}}}
+\newbibmacro*{mbts:locator}{\iftoggle{mbts:note}{\iffieldundef{postnote}{}{%
+  \setunit{\addcomma\space}\printfield{postnote}}}{}}
+\newbibmacro*{mbts:access}{\usebibmacro{mbts:unit}\printfield{mbtsaccess}%
+  \usebibmacro{mbts:unit}\printfield{url}}
+\newbibmacro*{mbts:finish}{\usebibmacro{mbts:locator}\usebibmacro{mbts:access}\usebibmacro{finentry}}
+\newbibmacro*{mbts:volumes}{\iffieldundef{volumes}{}{%
+  \ifboolexpr{not togl {mbts:note} or test {\iffieldequalstr{entrysubtype}{commentary}}}{%
+    \iffieldequalstr{entrysubtype}{commentary}{\setunit{\addcomma\space}}{\usebibmacro{mbts:unit}}%
+    \printfield{volumes}\setunit{\addspace}\printtext{vols\adddot}}{}}}
+
+% Books, editions, reprints, edited/translated books, multivolume books,
+% series, commentaries, ebooks, musical scores, and Bible software (pp.43-52).
+\DeclareBibliographyDriver{book}{\usebibmacro{bibindex}\usebibmacro{begentry}%
+  \usebibmacro{mbts:creator}%
+  \iffieldundef{maintitle}{\usebibmacro{mbts:title}}{%
+    \usebibmacro{mbts:maintitle}\usebibmacro{mbts:unit}%
+    \iftoggle{mbts:note}{\printtext{vol\adddot\space}}{\printtext{Vol\adddot\space}}%
+    \printfield{volume}\setunit{\addcomma\space}\usebibmacro{mbts:title}}%
+  \usebibmacro{mbts:edition}\usebibmacro{mbts:editor}\usebibmacro{mbts:translator}%
+  \iftoggle{mbts:note}{}{\iffieldundef{maintitle}{\iffieldundef{volume}{}{%
+    \newunit\printtext{Vol\adddot\space}\printfield{volume}}}{}}%
+  \usebibmacro{mbts:volumes}\usebibmacro{mbts:series}\usebibmacro{mbts:publication}%
+  \iftoggle{mbts:note}{\iffieldundef{postnote}{}{\setunit{\addcomma\space}%
+    \iffieldundef{maintitle}{\iffieldundef{volume}{}{\printfield{volume}\setunit{\addcolon}}}{}%
+    \printfield{postnote}}}{}%
+  \iffieldundef{mbtsword}{}{\usebibmacro{mbts:unit}%
+    \iftoggle{mbts:note}{\printtext{s.v\adddot\space}}{\printtext{S.v\adddot\space}}\printfield{mbtsword}}%
+  \usebibmacro{mbts:access}\usebibmacro{finentry}}
+\DeclareBibliographyAlias{mvbook}{book}
+\DeclareBibliographyAlias{collection}{book}
+\DeclareBibliographyAlias{mvcollection}{book}
+\DeclareBibliographyAlias{music}{book}
+
+% Chapters, anthology selections, introductions/prefaces, Festschriften (pp.49-54).
+\DeclareBibliographyDriver{incollection}{\usebibmacro{bibindex}\usebibmacro{begentry}%
+  \usebibmacro{mbts:creator}%
+  \ifmbtsintro
+    {\iftoggle{mbts:note}{\printfield{entrysubtype}}{\printfield[initial]{entrysubtype}}%
+      \printtext{\space to\space}\usebibmacro{mbts:booktitle}\setunit{\addcomma\space}%
+      \printtext{by\space}\printnames[given-family]{bookauthor}}
+    {\usebibmacro{mbts:title}\usebibmacro{mbts:unit}%
+      \iftoggle{mbts:note}{\printtext{in\space}}{\printtext{In\space}}\usebibmacro{mbts:booktitle}}%
+  \ifnameundef{editor}{}{\iftoggle{mbts:note}{\setunit{\addcomma\space}\printtext{ed\adddot\space}}{%
+    \iffieldequalstr{entrysubtype}{festschrift}{\newunit\printtext{Edited by\space}}%
+      {\setunit{\addcomma\space}\printtext{edited by\space}}}%
+    \printnames[given-family]{editor}}\usebibmacro{mbts:translator}%
+  \iftoggle{mbts:note}{}{\ifmbtsintro{}{\setunit{\addcomma\space}\printfield{pages}}}%
+  \usebibmacro{mbts:publication}\usebibmacro{mbts:finish}}
+\DeclareBibliographyAlias{inbook}{incollection}
+
+% Journals and journal reviews (pp.52-53,56). mbtsdate handles seasons.
+\newbibmacro*{mbts:journal}{\printfield{journaltitle}\setunit{\addspace}%
+  \printfield{volume}\setunit{\addcomma\space}\iffieldundef{number}{}{%
+    \printtext{no\adddot\space}\printfield{number}}%
+  \setunit{\addspace}\printtext[parens]{\usebibmacro{mbts:date}}%
+  \setunit{\addcolon\space}\iftoggle{mbts:note}{\printfield{postnote}}{\printfield{pages}}}
+\DeclareBibliographyDriver{article}{\usebibmacro{bibindex}\usebibmacro{begentry}%
+  \usebibmacro{mbts:creator}\usebibmacro{mbts:title}\usebibmacro{mbts:unit}%
+  \usebibmacro{mbts:journal}\usebibmacro{mbts:access}\usebibmacro{finentry}}
+\DeclareBibliographyDriver{review}{\usebibmacro{bibindex}\usebibmacro{begentry}%
+  \usebibmacro{mbts:creator}\iffieldundef{title}{}{\usebibmacro{mbts:title}\setunit{\addcomma\space}}%
+  \iftoggle{mbts:note}{\printtext{review of\space}}{\iffieldundef{title}{\printtext{Review of\space}}{\printtext{review of\space}}}%
+  \printfield{reviewtitle}%
+  \ifboolexpr{not togl {mbts:note} and test {\iffieldequalstr{entrysubtype}{magazine}}}%
+    {\setunit{\addspace}}{\setunit{\addcomma\space}}%
+  \printtext{by\space}\printnames[given-family]{reviewauthor}%
+  \usebibmacro{mbts:unit}%
+  \iffieldequalstr{entrysubtype}{magazine}{\printfield{journaltitle}\setunit{\addcomma\space}%
+    \usebibmacro{mbts:date}\setunit{\addcomma\space}%
+    \iftoggle{mbts:note}{\printfield{postnote}}{\printfield{pages}}}{\usebibmacro{mbts:journal}}%
+  \usebibmacro{mbts:access}\usebibmacro{finentry}}
+
+% Dictionaries: unsigned articles have the deliberately abbreviated year-only note.
+\DeclareBibliographyDriver{reference}{\usebibmacro{bibindex}\usebibmacro{begentry}%
+  \usebibmacro{mbts:title}\iftoggle{mbts:note}{\setunit{\addspace}\printtext[parens]{\printfield{year}}}%
+    {\usebibmacro{mbts:edition}\usebibmacro{mbts:editor}\usebibmacro{mbts:publication}}%
+  \usebibmacro{mbts:unit}\iftoggle{mbts:note}{\printtext{s.v\adddot\space}}{\printtext{S.v\adddot\space}}%
+  \printfield{mbtsword}\usebibmacro{mbts:access}\usebibmacro{finentry}}
+\DeclareBibliographyDriver{inreference}{\usebibmacro{bibindex}\usebibmacro{begentry}%
+  \usebibmacro{mbts:creator}\usebibmacro{mbts:title}\usebibmacro{mbts:unit}%
+  \usebibmacro{mbts:booktitle}\usebibmacro{mbts:publication}\usebibmacro{mbts:unit}%
+  \printfield{volume}\setunit{\addcolon}%
+  \iftoggle{mbts:note}{\printfield{postnote}}{\printfield{pages}}%
+  \usebibmacro{mbts:access}\usebibmacro{finentry}}
+\DeclareBibliographyDriver{thesis}{\usebibmacro{bibindex}\usebibmacro{begentry}%
+  \usebibmacro{mbts:creator}\usebibmacro{mbts:title}%
+  \iftoggle{mbts:note}{\setunit{\addspace}\printtext[parens]{\usebibmacro{mbts:thesisdata}}}%
+    {\newunit\usebibmacro{mbts:thesisdata}}\usebibmacro{mbts:finish}}
+\newbibmacro*{mbts:thesisdata}{\printfield{type}\setunit{\addcomma\space}%
+  \printlist{institution}\setunit{\addcomma\space}\usebibmacro{mbts:date}}
+
+% Course materials (pp.58-59).
+\DeclareBibliographyDriver{mbtscourse}{\usebibmacro{bibindex}\usebibmacro{begentry}%
+  \usebibmacro{mbts:creator}%
+  \ifboolexpr{test {\iffieldequalstr{entrysubtype}{lecture}}}{%
+    \iftoggle{mbts:note}{\printtext{lecture notes for\space}}{\printtext{Lecture Notes for\space}}}%
+    {\iffieldequalstr{entrysubtype}{syllabus}{\printtext{Syllabus for\space}}{%
+      \iffieldequalstr{entrysubtype}{classnotes}{\printtext{Class notes}\usebibmacro{mbts:unit}%
+        \printfield{mbtsprogram}\usebibmacro{mbts:unit}}{%
+        \usebibmacro{mbts:title}\setunit{\addcomma\space}\printtext{a paper submitted for\space}}}}%
+  \printfield{mbtscourse}%
+  \iffieldequalstr{entrysubtype}{paper}{\setunit{\addcomma\space}}{\usebibmacro{mbts:unit}}%
+  \printlist{institution}%
+  \setunit{\addcomma\space}\usebibmacro{mbts:date}\usebibmacro{mbts:finish}}
+
+% Sermons, conference lectures, interviews (pp.59-60).
+\DeclareBibliographyDriver{mbtslecture}{\usebibmacro{bibindex}\usebibmacro{begentry}%
+  \usebibmacro{mbts:creator}%
+  \iffieldequalstr{entrysubtype}{chapel}{\printtext{Seminary Chapel sermon}\usebibmacro{mbts:unit}%
+    \printlist{institution}\setunit{\addcomma\space}\printlist{location}%
+    \setunit{\addcomma\space}\usebibmacro{mbts:date}}{%
+    \usebibmacro{mbts:title}\iftoggle{mbts:note}{\setunit{\addspace}%
+      \printtext[parens]{\usebibmacro{mbts:event}}}{\newunit\usebibmacro{mbts:event}}}%
+  \usebibmacro{mbts:finish}}
+\newbibmacro*{mbts:event}{\iftoggle{mbts:note}{\printfield{type}}{\printfield[initial]{type}}%
+  \setunit{\addcomma\space}\printfield{eventtitle}%
+  \setunit{\addcomma\space}\printfield{venue}\setunit{\addcomma\space}\usebibmacro{mbts:date}}
+\DeclareBibliographyDriver{mbtsinterview}{\usebibmacro{bibindex}\usebibmacro{begentry}%
+  \usebibmacro{mbts:names}{author}\setunit{\addcomma\space}\printfield{mbtsrole}%
+  \usebibmacro{mbts:unit}\iftoggle{mbts:note}{\printtext{interview by author}}{\printtext{Interview by author}}%
+  \setunit{\addcomma\space}\printlist{location}\setunit{\addcomma\space}\usebibmacro{mbts:date}%
+  \usebibmacro{mbts:finish}}
+
+% Audio/video/performance (pp.60-62). Performances have no bibliography form.
+\DeclareBibliographyDriver{mbtspodcast}{\usebibmacro{bibindex}\usebibmacro{begentry}%
+  \usebibmacro{mbts:creator}\usebibmacro{mbts:title}%
+  \iftoggle{mbts:note}{\setunit{\addcomma\space}\usebibmacro{mbts:booktitle}%
+    \setunit{\addspace}\printtext{(MP3 podcast)}\setunit{\addcomma\space}\printlist{organization}}{%
+    \setunit{\addspace}\printtext{(MP3 podcast)}\newunit\usebibmacro{mbts:booktitle}}%
+  \usebibmacro{mbts:unit}\usebibmacro{mbts:date}\usebibmacro{mbts:finish}}
+\DeclareBibliographyDriver{mbtsperformance}{\usebibmacro{bibindex}\usebibmacro{begentry}%
+  \usebibmacro{mbts:creator}\printfield{mbtsrole}\setunit{\addcomma\space}%
+  \iffieldequalstr{entrysubtype}{song}{\printtext{\mkbibquote{\thefield{title}}}}{\usebibmacro{mbts:title}}%
+  \setunit{\addcomma\space}\printtext{by\space}\printnames[given-family]{composer}%
+  \setunit{\addcomma\space}\printfield{venue}\setunit{\addcomma\space}\printlist{location}%
+  \setunit{\addcomma\space}\usebibmacro{mbts:date}\usebibmacro{mbts:finish}}
+\DeclareBibliographyDriver{mbtsvideo}{\usebibmacro{bibindex}\usebibmacro{begentry}%
+  \usebibmacro{mbts:creator}\usebibmacro{mbts:title}\setunit{\addspace}\printtext{(music video)}%
+  \usebibmacro{mbts:unit}\iftoggle{mbts:note}{\printtext{directed by\space}}{\printtext{Directed by\space}}%
+  \printnames[given-family]{director}\usebibmacro{mbts:finish}}
+
+% Website/blog/social/database entries: author first, conditional bibliography.
+\DeclareBibliographyDriver{online}{\usebibmacro{bibindex}\usebibmacro{begentry}%
+  \ifnameundef{author}{\usebibmacro{mbts:creator}}{\usebibmacro{mbts:names}{author}%
+    \iffieldundef{mbtshandle}{}{\setunit{\addspace}\printtext[parens]{\printfield{mbtshandle}}}%
+    \usebibmacro{mbts:unit}}%
+  \usebibmacro{mbts:title}\usebibmacro{mbts:unit}\printfield[plain]{booktitle}%
+  \iffieldequalstr{entrysubtype}{blog}{\setunit{\addspace}\printtext{(blog)}}{}%
+  \usebibmacro{mbts:unit}\printlist{organization}\usebibmacro{mbts:unit}%
+  \usebibmacro{mbts:date}\usebibmacro{mbts:finish}}
+
+% Convention resolutions, reports, recommendations: note only (p.65).
+\DeclareBibliographyDriver{mbtsresolution}{\usebibmacro{bibindex}\usebibmacro{begentry}%
+  \usebibmacro{mbts:creator}\usebibmacro{mbts:title}\setunit{\addcomma\space}%
+  \printfield[plain]{eventtitle}\setunit{\addcomma\space}\printfield{mbtssession}%
+  \setunit{\addspace}\printtext{Session}\setunit{\addcomma\space}\printfield{mbtsmeetingyear}%
+  \setunit{\addspace}\printtext{Year}\setunit{\addcomma\space}\usebibmacro{mbts:date}%
+  \setunit{\addcolon\space}\iffieldundef{mbtsitem}{}{\printtext{Item\space}\printfield{mbtsitem}\setunit{\addcomma\space}}%
+  \usebibmacro{mbts:booktitle}\usebibmacro{mbts:finish}}
+
+% Manuscript collections allow missing authors and incomplete metadata (pp.66-67).
+\DeclareBibliographyDriver{mbtsmanuscript}{\usebibmacro{bibindex}\usebibmacro{begentry}%
+  \usebibmacro{mbts:creator}%
+  \iftoggle{mbts:note}{\printfield[plain]{title}}{\printfield[initial]{title}}\usebibmacro{mbts:unit}%
+  \printlist{organization}\ifnameundef{author}{\setunit{\addcomma\space}}{\usebibmacro{mbts:unit}}%
+  \usebibmacro{mbts:date}%
+  \usebibmacro{mbts:unit}\printfield{mbtsfile}\usebibmacro{mbts:unit}%
+  \printfield{mbtscollection}\usebibmacro{mbts:unit}\printfield{mbtsarchive}%
+  \usebibmacro{mbts:finish}}
+\DeclareBibliographyDriver{mbtsclassical}{\iftoggle{mbts:note}{%
+  \usebibmacro{mbts:creator}\usebibmacro{mbts:title}\setunit{\addspace}\printfield{postnote}%
+  \usebibmacro{finentry}}{\usedriver{}{book}\usebibmacro{finentry}}}
+% Unspecified sources must be deliberately adapted, rather than silently styled
+% as generic Chicago. The manual itself sends unlisted cases to Turabian.
+\DeclareBibliographyDriver{misc}{\PackageError{mbts}{Unsupported citation type misc}%
+  {Choose a documented MBTS entry type or format this unusual source manually.}}
+\endinput

@@ -1,211 +1,246 @@
-# MBTS LaTeX course papers
+# mbtstex
 
-`mbts.sty` formats course papers for **Midwestern Baptist Theological Seminary**.
-`mbts.cls` is a convenient wrapper that selects the required 12-point article
-class. Start by editing [paper.tex](paper.tex); [paper.pdf](paper.pdf) is the
-compiled example included in the repository.
+LaTeX formatting and citations for the **Midwestern Style Manual, fourth edition
+(2021)**, used by Midwestern Baptist Theological Seminary and Spurgeon College.
+This version was audited against a user-supplied copy of the complete manual.
+The manual and its copyrighted sample papers are not distributed here.
 
-**Edition status:** this is an unofficial implementation of the publicly
-accessible **2018 second edition, revised**, checked against a 2020 MBTS syllabus.
-The MBTS library currently lists the **fourth edition**. Its text was not available
-for verification, and the current formatting resources require a student login.
-Compare the output with your assigned edition and syllabus before submitting.
-This release covers course papers; it does not implement dissertation front
-matter, chapter layouts, or binding margins.
+Start with [`paper.tex`](paper.tex); [`paper.pdf`](paper.pdf) is its compiled
+sample. The sample explicitly uses **TeX Gyre Termes**, a draft substitute. Use
+`submission` with licensed **Times New Roman** installed for submission.
+
+The project covers the manual's document structures and listed citation
+categories. It cannot certify the argument, quotation accuracy, prose, or
+assignment-specific requirements. Dissertation chapter counts, abstract limits,
+and other program rules come from separate dissertation guides. See the
+[coverage audit](docs/coverage.md), including two inconsistencies in the manual,
+and the [author's checklist](docs/author-checklist.md).
 
 ## Quick start
 
-Keep `mbts.cls`, `mbts.sty`, and your `.tex` file together. No installation of the
-module is necessary. With a working TeX Live or MiKTeX installation:
-
-```sh
-xelatex paper.tex
-xelatex paper.tex
-```
-
-Or run `make` to put the PDF and intermediate files in `build/`. To use another
-engine, run `make clean` followed by `make ENGINE=lualatex` or
-`make ENGINE=pdflatex`. The second pass resolves contents and references.
-Run `make sample` to refresh the tracked root-level `paper.pdf` from the latest
-build. Intermediate output stays in `build/`, which Git ignores.
-
-Optional: `make bundle` creates `build/mbts-template.zip` with the class,
-package, example, guide, and PDF. You can import it into Overleaf and choose
-`paper.tex` with the XeLaTeX compiler.
+Keep the `mbts*.sty`, `mbts.cls`, and, for automatic citations, `mbts.bbx`,
+`mbts.cbx`, and `mbts.dbx` files beside your document, or install them in your
+personal TeX tree.
 
 ```latex
-\documentclass{mbts}
-\title{The Title of the Paper}
-\author{Student Name}
+\documentclass[submission]{mbts}
+\title{The Title of Your Paper}
+\author{Your Name}
 \date{October 20, 2026}
-\mbtssetup{
-  course={HT 0000 Course Name},
-  paper-type={A Research Paper},
-  location={Kansas City, Missouri}
-}
+\mbtssetup{course={HT 1234 Name of Course}}
 \begin{document}
 \maketitle
 \section{Introduction}
-Begin your paper here.\footnote{Your formatted source citation.}
-\begin{mbtsbibliography}
-  \mbtsbibitem{Your formatted bibliography entry.}
-\end{mbtsbibliography}
+Your text and argument.
 \end{document}
 ```
 
-For an existing article, replace the class wrapper with:
+Compile twice with XeLaTeX or LuaLaTeX. For the included draft:
+
+```sh
+make sample        # builds build/paper.pdf and updates root paper.pdf
+make examples      # builds dissertation, review, annotated bibliography, citations
+make check         # PDF layout and citation regression checks
+```
+
+`build/` and auxiliary files are ignored by Git. The root `paper.pdf` is tracked.
+`make bundle` optionally creates an archive under `build/`; no archive is needed
+to use the project. `ENGINE=lualatex` selects another compiler; `BIBER=...` selects
+Biber. Use a recent TeX Live or MiKTeX installation containing `fontspec`,
+`geometry`, `setspace`, `footmisc`, `titlesec`, `caption`, `newfloat`, `graphicx`,
+`array`, `etoolbox`, `kvoptions`, and `xparse`. Automatic citations additionally
+need matching versions of **biblatex and Biber**, plus `babel` and `csquotes` for
+the examples. There is no dependency on biblatex-chicago.
+
+## Fonts and class options
+
+| Option | Behavior |
+| --- | --- |
+| `submission` | Requires actual Times New Roman under XeLaTeX/LuaLaTeX; errors if missing. Rejects oversized in-text `mbtsvisual` objects. |
+| `font=auto` | Default: Times New Roman if installed; otherwise Termes with a conspicuous compiler warning. |
+| `font=times` | Requires Times New Roman, without the additional submission checks. |
+| `font=termes` | Explicit draft substitute; also permits pdfLaTeX. |
+| `font=none` | Advanced font setup supplied by the author; no font-compliance claim. |
+| `dissertation` | Uses the report class, 1.5-inch left margin, chapter structures and dissertation title. |
+| `review` | Sets the paper type to “A Book Review.” |
+| `fifthlevel` | Enables run-in `\subparagraph`; only for a PhD dissertation with chair approval. |
+
+The body, titles, bibliography and page numbers are 12pt; footnotes are 10pt.
+The old `footnotesize=12` setting is rejected because it contradicts the fourth
+edition. `submission` takes precedence over any `font=` option. It does not
+embed or download proprietary fonts. If you supply licensed font files under
+custom filenames, use `font=none` and `fontspec` explicitly, and verify the fonts
+in the resulting PDF yourself.
+
+The package API is also supported:
 
 ```latex
 \documentclass[12pt,letterpaper,oneside]{article}
-\usepackage{mbts}
+\usepackage[submission]{mbts}
 ```
 
-The package owns margins, spacing, heading styles, footnote layout, and page
-styles. Remove competing layout settings from an existing template. It requires
-`geometry`, `setspace`, `footmisc`, `titlesec`, `indentfirst`, `kvoptions`,
-`etoolbox`, and `iftex`; Unicode engines also use `fontspec`.
+For a dissertation use `report` and `\usepackage[dissertation,submission]{mbts}`.
+Two columns and non-12pt classes are rejected. The samples use invented data.
 
-## Fonts
+## Writing a paper
 
-MBTS specifies **Times New Roman**. For a submission, install a licensed copy
-and use XeLaTeX or LuaLaTeX with:
+Use standard `\title`, `\author`, and `\date`. `\mbtssetup` accepts `course`,
+`paper-type`, `institution`, and `degree`. The default institution is MBTS; set
+`institution={Spurgeon College}` when appropriate. The location is Kansas City,
+Missouri. Optional `professor` and `location` overrides are available only for
+an explicit assignment exception; they are not the manual's standard layout.
+Long titles wrap at single spacing. A title that cannot fit the fixed layout
+raises an error instead of silently creating a second title page.
 
-```latex
-\documentclass[font=times]{mbts}
-```
-
-This mode fails if Times New Roman is unavailable. It never silently substitutes
-a different font. In the default `font=auto` mode, the module uses Times New
-Roman when available, otherwise **TeX Gyre Termes** with a warning. `font=termes`
-explicitly selects that draft substitute. pdfLaTeX uses Termes. The included PDF
-was built with Termes, because Times New Roman is absent on the build machine.
-
-`font=none` leaves font selection to you. For example, if your Overleaf project
-contains licensed font files, load them explicitly with `fontspec`:
-
-```latex
-\documentclass[font=none]{mbts}
-\usepackage{fontspec}
-\setmainfont{times.ttf}[
-  BoldFont=timesbd.ttf,
-  ItalicFont=timesi.ttf,
-  BoldItalicFont=timesbi.ttf
-]
-```
-
-Use your actual filenames. Fonts are not included in this project. For Greek or
-Hebrew, use a Unicode engine and configure an appropriate language/font package;
-the module does not supply language switching or right-to-left typesetting.
-
-## Formatting and commands
-
-| Feature | Default |
+| Command | Heading |
 | --- | --- |
-| Paper and margins | US Letter; one inch on all sides |
-| Body | 12 point; double spaced; ragged right; single spaces after sentences |
-| Paragraphs | Half-inch first-line indent, including after headings; no extra paragraph gap |
-| Pagination | Centered footer; title unnumbered and excluded; body starts at 1 |
-| `\section{Title}` | Centered, bold |
-| `\subsection{Title}` | Centered, regular |
-| `\subsubsection{Title}` | Flush left, bold |
-| `\paragraph{Title}` | Flush left, regular; separate line |
-| `mbtsquote` environment | Single spaced; half-inch left indent; no right indent |
-| Footnotes | 12 point, including raised numbers; single spaced; first line indented |
-| `mbtsbibliography` environment | New page; single-spaced entries with half-inch hanging indents |
+| `\section{...}` | Centered, bold |
+| `\subsection{...}` | Centered, regular |
+| `\subsubsection{...}` | Flush left, bold |
+| `\paragraph{...}` | Flush left, regular, on its own line |
 
-Headings are unnumbered. Supply headline capitalization yourself. The four
-heading commands retain LaTeX's contents behavior; starred headings are omitted
-from the contents. `\footnote{...}` handles notes; numbering continues throughout
-a course paper. Continuation footnotes receive a full-width separator.
-
-Title-page fields use uppercase, with the institution beginning about two inches
-from the top. `\mbtssetup` accepts `course`, `paper-type`, `location`,
-`institution`, and optional `professor`. Omit `professor` unless your assignment
-requires it. The template supplies the school and Kansas City by default.
-
-For a longer paper, place these commands between `\maketitle` and the body:
+Enter heading titles in headline capitalization. Use `mbtsquote` for quotations
+that would occupy five or more lines of ordinary text. It supplies single
+spacing and a half-inch left indent. Supply the quotation, citation, and any
+brackets or ellipses accurately yourself.
 
 ```latex
-\mbtsfrontmatter
-\tableofcontents
-\mbtsmainmatter
+The source explains:
+\begin{mbtsquote}
+The exact passage, without surrounding quotation marks.\footnote{The citation.}
+\end{mbtsquote}
 ```
 
-Contents pages start at roman `i`, excluding the title page; body pagination
-restarts at Arabic `1`. Only first-level headings appear by default. Use
-`\setcounter{tocdepth}{2}` to include second-level headings. This front-matter
-numbering choice is a course-paper convention; verify it for your assignment.
-
-The half-inch interpretation of “one tab,” spacing measurements, title-group
-spacing, and the separator's interpretation of “22 spaces” are implementation
-choices. Preamble lengths let you tune them without editing the package:
+Manual bibliographies remain available. Supply entries alphabetically, already
+formatted, ending in periods:
 
 ```latex
-\setlength{\mbtsindent}{0.5in}
-\setlength{\mbtsheadbefore}{28.8pt}
-\setlength{\mbtsheadafter}{14.4pt}
-\setlength{\mbtsentrysep}{14.4pt}
-\setlength{\mbtsfootnoterulewidth}{1.5in}
-\setlength{\mbtstitletop}{1in} % added to the one-inch top margin
-\setlength{\mbtstitlegap}{0.5in} % minimum gap; remaining space is distributed
+\begin{mbtsbibliography}
+\mbtsbibitem{Surname, Given Name. \textit{Title}. City: Publisher, 2026.}
+\end{mbtsbibliography}
 ```
 
-If your instructor specifies smaller notes, use `footnotesize=10` as a class or
-package option. The default remains 12. Load `hyperref` after `mbts`, if needed;
-the module makes links black without boxes or underlining.
-
-## Citations
-
-The ready-to-edit paper needs **no bibliography processor**. Write full or short
-citations inside `\footnote`, then put alphabetized bibliography entries inside
-`\mbtsbibitem{...}`. The module formats their layout; it does not generate citation
-wording, sort manual entries, or decide when to use *Ibid.* The sample entries
-are plainly labeled placeholders, not real sources.
-
-For a `.bib` database, optional `biblatex-chicago` integration is available:
+## Automatic citations
 
 ```latex
-% Preamble, after \documentclass{mbts}:
 \usepackage[american]{babel}
 \usepackage{csquotes}
-\usepackage[notes,backend=biber]{biblatex-chicago}
+\usepackage[backend=biber,style=mbts]{biblatex}
 \addbibresource{sources.bib}
-
-% In the body:
-% ...text.\autocite[25]{source-key}
-% At the end, instead of the manual environment:
-% \mbtsprintbibliography
+% In the document:
+A supported claim.\autocite[42]{source-key}
+% At the end:
+\mbtsprintbibliography
 ```
 
-Build with XeLaTeX, Biber, then XeLaTeX twice. Install `biblatex`,
-`biblatex-chicago`, and matching Biber versions for this path. The integration
-sets the bibliography heading, spacing, and indents. **Chicago citation output
-is not an MBTS-specific citation style**: check wording, repeated authors,
-online-source dates, Bible references, and specialized theological sources
-against your manual. The older manual has institutional exceptions.
+Run XeLaTeX, Biber, then XeLaTeX twice. `\autocite` and `\footcite` produce full
+first notes, shortened later notes, and “Ibid.” for an unambiguous consecutive
+citation on the same page. Shortened notes retain a short title. Use `shorttitle`
+to abbreviate a long title. `\autocites[42]{one}[7]{two}` places multiple sources
+in one note, separated by semicolons. Inside a substantive footnote use `\cite`.
 
-## Sources and checks
+All authors appear in the bibliography; notes abbreviate four or more authors.
+The bibliography sorts by author and title. `dashed=true` optionally replaces
+repeated author names with six underscores. Ebook/database/software access
+information follows the locator in notes. Live performances and denominational
+resolutions/reports are omitted from the bibliography; web and podcast sources
+require `keywords={include-bibliography}` when sufficiently important or frequent.
 
-Requirements were researched on October 20, 2026:
+See the [field and source-type guide](docs/citations.md), the
+[66-variant database](examples/citations.bib), and its
+[renderable gallery](examples/citations.tex). These contain the special types for
+course materials, sermons, interviews, media, manuscript collections and ancient
+works. **Use the documented type and fields**: a generic imported BibTeX record
+may need adapting. `\mbtsprintbibliography` applies the MBTS exclusion filter;
+plain `\printbibliography` does not.
 
-- [MBTS Writer's Studio](https://library.mbts.edu/writers-studio-0): identifies
-  the current fourth edition and links to the bookstore.
-- [MBTS formatting resources](https://mbts.instructure.com/courses/5368/pages/formatting-resources):
-  linked by the library; redirects to student sign-in.
-- [2018 second edition, revised](https://github.com/gq9000/styles/blob/master/The-Midwestern-Style-Manual-Second-Edition-Revised-110718.pdf):
-  a publicly hosted copy of the seminary's manual, referenced by the
-  [CSL style's documentation](https://github.com/citation-style-language/styles/pull/4363#issuecomment-546532333).
-  Printed pages 1–3, 18–22, and 32–33 inform layout, title pages, and notes.
-  The manual itself is not redistributed here.
-- [2020 MBTS Reformation syllabus, page 7](https://jgduesing.com/wp-content/uploads/2020/06/DR37375_Barrett-Duesing-Syllabus-Oct-2020.pdf):
-  confirms Times New Roman 12, one-inch margins, double spacing, and ragged right.
+## Scripture
 
-Run `make check` for compilation and PDF layout checks. It uses Python's standard
-library, XeLaTeX, pdfLaTeX, and Poppler's `pdftotext`. To include LuaLaTeX, run
-`MBTS_TEST_ENGINES="xelatex pdflatex lualatex" make check` with a complete
-LuaLaTeX installation (including `luaotfload` and `lualibs`). The sample and
-layout checks passed with all three engines during development. Automated
-checks verify layout behavior; they do not certify fourth-edition compliance.
-The optional bibliography integration was also tested with `biblatex-chicago`
-2.3b, `biblatex` 3.22a, and Biber 2.22. With those dependencies installed, run
-`MBTS_TEST_BIBLATEX=1 make check` to include the bibliography test.
+```latex
+\usepackage{mbts-bible}
+% In the document, at the first use of the translation:
+\mbtsbibleversion{English Standard Version}{ESV}{Wheaton, IL}{Crossway}{2016}
+% Verify the publication metadata of the edition actually used.
+\mbtsbible{Genesis}{1:1}                 % (Gen 1:1)
+\mbtsbible[ESV]{Romans}{3:21--24, 27--31}
+\mbtsbiblefootnote{Philemon}{4}         % a footnote for a nonbiblical topic
+\mbtsbibleref{1 Corinthians}{13:1--3}   % without parentheses
+```
+
+The canonical book abbreviations follow SBL as required by this edition.
+Write full book names in narrative prose. Choose parenthetical references or
+footnotes according to the topic and instructor. Scripture is normally omitted
+from the bibliography. Register additional names with
+`\mbtsdeclarebiblebook{Name}{Abbreviation}`; use the manual's Appendix 6 for
+apocryphal and specialist abbreviations. Unicode Greek and Hebrew require an
+appropriate font and, for Hebrew, a bidirectional language setup. Keep original
+scripts upright; italicize transliterations.
+
+## Other document types
+
+- [Dissertation](examples/dissertation.tex): approval inclusion, title counted as
+  i but hidden, copyright ii hidden, optional dedication/epigraph, continuing
+  Roman front matter, Arabic main matter, chapters, appendices, bibliography,
+  and final vita. Chapter footnotes restart at 1. `\mbtsapproval{approval.pdf}`
+  requires `pdfpages` and belongs before `\maketitle`; the school supplies it.
+- [Book review](examples/book-review.tex): review title page, opening entry with
+  page count and price, required sections, and parenthetical page citations.
+- [Annotated bibliography](examples/annotated-bibliography.tex): hanging entries,
+  block-indented annotations, single spacing and blank lines between elements.
+
+`\mbtsmainmatter` starts Arabic page 1. A dissertation title already starts Roman
+numbering, so **do not call `\mbtsfrontmatter` after it**. Course papers may use
+`\mbtsfrontmatter`, `\tableofcontents`, then `\mbtsmainmatter` if required.
+
+`\begin{mbtspage}{Acknowledgements}...\end{mbtspage}` creates an uppercase named
+page with a contents entry. A star **after the environment name**, as in
+`\begin{mbtspage}*{Preface}`, omits that entry. This supports abbreviations,
+glossaries, prefaces and PhD research methods. The standard `abstract` environment
+creates a contents entry. `\mbtsvita` is an environment; its
+`\mbtsvitasection{...}` commands label the centered sections.
+
+`\chapter`, `\part` and `\mbtsappendix{Title}` handle dissertation divisions.
+Parts count in pagination but hide the number. Appendices use letters. Contents
+include chapters and first-level headings; set `tocdepth` to 2 only with
+committee permission. Lists of tables, figures, graphs and illustrations have
+uppercase headings and continue the current numbering.
+
+## Tables and figures
+
+Use `mbtsvisual` for a measured, nonfloating object near the related discussion:
+
+```latex
+\begin{mbtsvisual}{table}{Survey Results}
+\label{tab:survey}
+\centering
+\begin{mbtstabular}{lcc}
+Group & Before & After\\\hline
+First & 10 & 15\\
+Second & 12 & 18\\\hline
+\end{mbtstabular}
+\mbtsfiguresource{The source citation.}
+\mbtsfigurenote{Any necessary explanation.}
+\end{mbtsvisual}
+```
+
+The first argument can be `table`, `figure`, `graph` or `illustration`. Labels and
+titles are uppercase, on separate lines. `mbtstabular` supplies the required
+upper double rule. Supply headline-style column headings, a stub column and
+centered numeric columns. Large objects belong after `\mbtsappendix` and should
+be referenced in the text. `mbtsvisual` warns above half a page in draft mode and
+errors in submission mode. Standard floats/captions are also styled, but their
+placement and size must be checked by the author.
+
+## Verification and sources
+
+The tests compile documents and inspect PDF text, coordinates, page labels,
+font-size ratios, citation strings, bibliography sorting/exclusions and expected
+errors. `make check` requires XeLaTeX, pdfLaTeX, Biber and Poppler's `pdftotext`.
+Set `MBTS_TEST_ENGINES='xelatex pdflatex lualatex'` to include LuaLaTeX. The tests
+use the explicit Termes draft font so they do not redistribute Times New Roman.
+
+The authority is the purchased fourth-edition manual, not an official MBTS
+endorsement of this project. Obtain it from the
+[MBTS bookstore](https://shop.mbts.edu/products/midwestern-style-manual-4th-edition-digital-download).
+Use the [Writer's Studio](https://www.mbts.edu/current-students/writers-studio/)
+and your program's dissertation guide to resolve assignment-specific questions.

@@ -1,0 +1,74 @@
+% Replace font=termes with submission for the required Times New Roman font.
+\documentclass[dissertation,font=termes]{mbts}
+\usepackage{hyperref}
+% \usepackage{pdfpages} % if including the seminary's approval page
+\title{An Example Dissertation}
+\author{Example Student}
+\date{October 2026}
+\mbtssetup{degree={Doctor of Philosophy}}
+\begin{document}
+% \mbtsapproval{approval.pdf} % supplied by MBTS; uncounted
+\maketitle                  % counted i, hidden
+\mbtscopyright{2026}        % counted ii, hidden
+\mbtsdedication{For my family} % optional iii, hidden; omit terminal punctuation
+\mbtsepigraph{An illustrative epigraph, to be replaced with a verified quotation.}
+  {Source of the epigraph}   % optional iv, hidden
+\tableofcontents            % v in this example
+\listoftables
+\listoffigures
+\begin{mbtspage}*{Preface}   % star omits an optional contents entry
+Replace this paragraph with your preface.
+\end{mbtspage}
+\begin{mbtspage}{Acknowledgements}
+Recognize significant contributions to this research.
+\end{mbtspage}
+\begin{mbtspage}{Abbreviations}
+Define the abbreviations used throughout the dissertation.
+\end{mbtspage}
+\begin{mbtspage}{Research Method} % extensive method discussion: PhD only
+Describe the method used to investigate the research question.
+\end{mbtspage}
+\begin{abstract}
+Replace this placeholder with an abstract that meets your degree program's
+word limit and content requirements.
+\end{abstract}
+\mbtsmainmatter             % Arabic 1
+\chapter{Introduction}
+\section{Research Question}
+Introduce the problem and the dissertation's argument.\footnote{First chapter's first note.}
+\chapter{Evidence}
+\section{Findings}
+Present and interpret the evidence.\footnote{Second chapter's first note.}
+\begin{mbtsvisual}{table}{Illustrative Results}
+\label{tab:results}
+\centering
+\begin{mbtstabular}{lcc}
+Group & Before & After\\\hline
+First & 10 & 15\\
+Second & 12 & 18\\\hline
+\end{mbtstabular}
+\mbtsfiguresource{Invented demonstration data.}
+\end{mbtsvisual}
+\chapter{Conclusion}
+Summarize the conclusions. This abbreviated example is not a program's
+required chapter plan; consult its dissertation guide.
+\mbtsappendix{Supporting Material}
+Place oversized tables and supporting documents here.
+\begin{mbtspage}{Glossary}
+Define terms here if the glossary belongs in the back matter.
+\end{mbtspage}
+\begin{mbtsbibliography}
+\mbtsbibitem{Example, Anne. \textit{An Invented Source}. Example City: Example Press, 2026.}
+\end{mbtsbibliography}
+\begin{mbtsvita}
+Example Student\\Street Address\\City, State ZIP\\Phone
+\mbtsvitasection{Educational}
+Degree, Institution, Year
+\mbtsvitasection{Ministerial}
+Position, Church, City, State, Years
+\mbtsvitasection{Professional}
+Position, Organization, Years
+\mbtsvitasection{Professional Societies}
+Membership, Organization, Years
+\end{mbtsvita}
+\end{document}

@@ -3,6 +3,10 @@
 *.log
 *.out
 *.toc
+*.lof
+*.lot
+*.lograph
+*.loillustration
 *.fls
 *.fdb_latexmk
 *.synctex.gz

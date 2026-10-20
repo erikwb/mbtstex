@@ -1,0 +1,83 @@
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{mbts-bible}[2026/10/20 MBTS Scripture references]
+\RequirePackage{xparse}
+\newcommand*\mbtsdeclarebiblebook[2]{\expandafter\def\csname mbtsbook@#1\endcsname{#2}}
+\newcommand*\mbtsbook[1]{\ifcsname mbtsbook@#1\endcsname
+  \csname mbtsbook@#1\endcsname\else
+  \PackageError{mbts-bible}{Unknown Bible book '#1'}{Use the full English name,
+    or register a name with \string\mbtsdeclarebiblebook.}\fi}
+\NewDocumentCommand\mbtsbibleref{O{} m m}{\mbtsbook{#2}\ #3\if\relax\detokenize{#1}\relax\else\ #1\fi}
+\NewDocumentCommand\mbtsbible{O{} m m}{(\mbtsbibleref[#1]{#2}{#3})}
+\NewDocumentCommand\mbtsbiblefootnote{O{} m m}{\footnote{\mbtsbibleref[#1]{#2}{#3}.}}
+\newcommand\mbtsbibleversion[5]{\footnote{Unless otherwise indicated, all Scripture
+  quotations are from the \textit{#1} (#2) (#3: #4, #5).}}
+% Manual pp.115-117: SBL abbreviations, without periods for canonical books.
+\mbtsdeclarebiblebook{Genesis}{Gen}
+\mbtsdeclarebiblebook{Exodus}{Exod}
+\mbtsdeclarebiblebook{Leviticus}{Lev}
+\mbtsdeclarebiblebook{Numbers}{Num}
+\mbtsdeclarebiblebook{Deuteronomy}{Deut}
+\mbtsdeclarebiblebook{Joshua}{Josh}
+\mbtsdeclarebiblebook{Judges}{Judg}
+\mbtsdeclarebiblebook{Ruth}{Ruth}
+\mbtsdeclarebiblebook{1 Samuel}{1 Sam}
+\mbtsdeclarebiblebook{2 Samuel}{2 Sam}
+\mbtsdeclarebiblebook{1 Kings}{1 Kgs}
+\mbtsdeclarebiblebook{2 Kings}{2 Kgs}
+\mbtsdeclarebiblebook{1 Chronicles}{1 Chr}
+\mbtsdeclarebiblebook{2 Chronicles}{2 Chr}
+\mbtsdeclarebiblebook{Ezra}{Ezra}
+\mbtsdeclarebiblebook{Nehemiah}{Neh}
+\mbtsdeclarebiblebook{Esther}{Esth}
+\mbtsdeclarebiblebook{Job}{Job}
+\mbtsdeclarebiblebook{Psalm}{Ps}
+\mbtsdeclarebiblebook{Psalms}{Pss}
+\mbtsdeclarebiblebook{Proverbs}{Prov}
+\mbtsdeclarebiblebook{Ecclesiastes}{Eccl}
+\mbtsdeclarebiblebook{Song of Solomon}{Song}
+\mbtsdeclarebiblebook{Song of Songs}{Song}
+\mbtsdeclarebiblebook{Isaiah}{Isa}
+\mbtsdeclarebiblebook{Jeremiah}{Jer}
+\mbtsdeclarebiblebook{Lamentations}{Lam}
+\mbtsdeclarebiblebook{Ezekiel}{Ezek}
+\mbtsdeclarebiblebook{Daniel}{Dan}
+\mbtsdeclarebiblebook{Hosea}{Hos}
+\mbtsdeclarebiblebook{Joel}{Joel}
+\mbtsdeclarebiblebook{Amos}{Amos}
+\mbtsdeclarebiblebook{Obadiah}{Obad}
+\mbtsdeclarebiblebook{Jonah}{Jonah}
+\mbtsdeclarebiblebook{Micah}{Mic}
+\mbtsdeclarebiblebook{Nahum}{Nah}
+\mbtsdeclarebiblebook{Habakkuk}{Hab}
+\mbtsdeclarebiblebook{Zephaniah}{Zeph}
+\mbtsdeclarebiblebook{Haggai}{Hag}
+\mbtsdeclarebiblebook{Zechariah}{Zech}
+\mbtsdeclarebiblebook{Malachi}{Mal}
+\mbtsdeclarebiblebook{Matthew}{Matt}
+\mbtsdeclarebiblebook{Mark}{Mark}
+\mbtsdeclarebiblebook{Luke}{Luke}
+\mbtsdeclarebiblebook{John}{John}
+\mbtsdeclarebiblebook{Acts}{Acts}
+\mbtsdeclarebiblebook{Romans}{Rom}
+\mbtsdeclarebiblebook{1 Corinthians}{1 Cor}
+\mbtsdeclarebiblebook{2 Corinthians}{2 Cor}
+\mbtsdeclarebiblebook{Galatians}{Gal}
+\mbtsdeclarebiblebook{Ephesians}{Eph}
+\mbtsdeclarebiblebook{Philippians}{Phil}
+\mbtsdeclarebiblebook{Colossians}{Col}
+\mbtsdeclarebiblebook{1 Thessalonians}{1 Thess}
+\mbtsdeclarebiblebook{2 Thessalonians}{2 Thess}
+\mbtsdeclarebiblebook{1 Timothy}{1 Tim}
+\mbtsdeclarebiblebook{2 Timothy}{2 Tim}
+\mbtsdeclarebiblebook{Titus}{Titus}
+\mbtsdeclarebiblebook{Philemon}{Phlm}
+\mbtsdeclarebiblebook{Hebrews}{Heb}
+\mbtsdeclarebiblebook{James}{Jas}
+\mbtsdeclarebiblebook{1 Peter}{1 Pet}
+\mbtsdeclarebiblebook{2 Peter}{2 Pet}
+\mbtsdeclarebiblebook{1 John}{1 John}
+\mbtsdeclarebiblebook{2 John}{2 John}
+\mbtsdeclarebiblebook{3 John}{3 John}
+\mbtsdeclarebiblebook{Jude}{Jude}
+\mbtsdeclarebiblebook{Revelation}{Rev}
+\endinput

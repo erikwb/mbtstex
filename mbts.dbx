@@ -1,0 +1,11 @@
+\ProvidesFile{mbts.dbx}[2026/10/20 MBTS citation data model]
+\DeclareDatamodelEntrytypes{mbtscourse,mbtslecture,mbtsinterview,mbtspodcast,
+  mbtsperformance,mbtsvideo,mbtsresolution,mbtsmanuscript,mbtsclassical}
+\DeclareDatamodelFields[type=field,datatype=literal]{mbtsaccess,mbtsdate,
+  mbtsword,mbtsrole,mbtshandle,mbtscourse,mbtsprogram,mbtssession,
+  mbtsmeetingyear,mbtsitem,mbtscollection,mbtsarchive,mbtsfile,reviewtitle}
+\DeclareDatamodelFields[type=list,datatype=name]{reviewauthor,director,composer}
+\DeclareDatamodelEntryfields{mbtsaccess,mbtsdate,mbtsword,mbtsrole,mbtshandle,
+  mbtscourse,mbtsprogram,mbtssession,mbtsmeetingyear,mbtsitem,mbtscollection,
+  mbtsarchive,mbtsfile,reviewtitle,reviewauthor,director,composer}
+\endinput

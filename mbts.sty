@@ -1,18 +1,28 @@
 \NeedsTeXFormat{LaTeX2e}[2020/10/01]
-\ProvidesPackage{mbts}[2026/10/20 v0.1.0 MBTS course-paper formatting]
-% Based on the 2018 second revised edition and a public MBTS syllabus.
-% See README.md for sources and the fourth-edition verification limitation.
+\ProvidesPackage{mbts}[2026/10/20 v0.2.0 Midwestern fourth-edition formatting]
+% Midwestern Style Manual, fourth edition (2021). See docs/coverage.md.
 \RequirePackage{kvoptions}
 \SetupKeyvalOptions{family=mbts,prefix=mbts@}
 \DeclareStringOption[auto]{font}
-\DeclareStringOption[12]{footnotesize}
+\DeclareStringOption[10]{footnotesize}
+\DeclareBoolOption[false]{dissertation}
+\DeclareBoolOption[false]{submission}
+\DeclareBoolOption[false]{fifthlevel}
+\DeclareBoolOption[false]{review}
 \ProcessKeyvalOptions*
 \RequirePackage{etoolbox}
 \RequirePackage{iftex}
 
-\@ifclassloaded{article}{}{%
-  \PackageError{mbts}{Use the mbts class or the 12pt article class}%
-    {This package implements course papers, not book/report dissertations.}}
+\ifmbts@dissertation
+  \@ifclassloaded{report}{}{\PackageError{mbts}{Dissertations require report class}%
+    {Use \string\documentclass[dissertation]{mbts}.}}
+\else
+  \@ifclassloaded{article}{}{\PackageError{mbts}{Course papers require article class}%
+    {Use the mbts class, or dissertation with report.}}
+\fi
+\ifmbts@submission\def\mbts@font{times}\fi
+\ifdefstring{\mbts@footnotesize}{10}{}{\PackageError{mbts}{Footnotes must be 10pt}%
+  {The fourth edition changed footnotes from 12pt to 10pt.}}
 \ifnum\@ptsize=2\else
   \PackageError{mbts}{A 12pt document class is required}%
     {Use \string\documentclass{mbts} or \string\documentclass[12pt]{article}.}
@@ -61,9 +71,10 @@
         {Choose auto, times, termes, or none.}}}}}
 
 \RequirePackage[letterpaper,margin=1in,footskip=.5in]{geometry}
+\ifmbts@dissertation\geometry{left=1.5in}\fi
 \RequirePackage{setspace}
 \RequirePackage[bottom,splitrule]{footmisc}
-\RequirePackage{titlesec}
+\RequirePackage[largestsep]{titlesec}
 \RequirePackage{indentfirst}
 
 % Public lengths can be overridden in the preamble for assignment variations.
@@ -79,12 +90,10 @@
 \setlength\mbts@bodybaseline{24pt}
 \newlength\mbtsentrysep
 \setlength\mbtsentrysep{\mbtssinglebaseline}
-\newlength\mbtstitletop
-\setlength\mbtstitletop{1in}
-\newlength\mbtstitlegap
-\setlength\mbtstitlegap{.5in}
+\newlength\mbtstitlebaseline
+\setlength\mbtstitlebaseline{13.8pt}
 \newlength\mbtsfootnoterulewidth
-% Interpret the older manual's "22 spaces" using this font's interword space.
+% Conventional short separator; the fourth edition does not specify its width.
 \AtBeginDocument{%
   \ifdim\mbtsfootnoterulewidth=0pt
     \setlength\mbtsfootnoterulewidth{\fontdimen2\font}%
@@ -112,6 +121,9 @@
 % Compensate for the following paragraph's double-spaced baseline so that
 % the heading-to-body distance is two single lines, not nearly three.
 \newlength\mbts@headgap
+% Consecutive headings already carry the preceding heading's after-space.
+% Keep the full three-line separation without counting that space twice.
+\renewcommand*\ttl@titlespace[1]{\addvspace{\dimexpr#1-\mbts@headgap\relax}}
 \titlespacing{\section}{0pt}{\mbtsheadbefore}{\mbts@headgap}
 \titlespacing{\subsection}{0pt}{\mbtsheadbefore}{\mbts@headgap}
 \titlespacing{\subsubsection}{0pt}{\mbtsheadbefore}{\mbts@headgap}
@@ -119,13 +131,13 @@
 
 % Footnotes are single spaced, with a first-line indent (not a hanging indent).
 \renewcommand*\footnotesize{%
-  \@setfontsize\footnotesize{\mbts@footnotesize}{\mbtssinglebaseline}}
+  \@setfontsize\footnotesize{10}{12}}
 \renewcommand*\@makefnmark{%
-  \hbox{\normalfont\footnotesize\raisebox{.5ex}[0pt][0pt]{\@thefnmark}}}
+  \hbox{\normalfont\textsuperscript{\@thefnmark}}}
 \long\def\@makefntext#1{%
   \raggedright\setlength\parindent{\mbtsindent}%
   \setlength\parskip{0pt}%
-  \noindent\hspace*{\mbtsindent}\@makefnmark\nobreak\hspace{.15em}#1}
+  \noindent\hspace*{\mbtsindent}\@makefnmark\nobreak\ #1}
 \renewcommand*\pagefootnoterule{%
   \kern-3pt\hrule width \mbtsfootnoterulewidth height .4pt\kern2.6pt}
 \let\mpfootnoterule\pagefootnoterule
@@ -145,66 +157,13 @@
   \widowpenalty=10000
   \displaywidowpenalty=10000
   % A strut at the start of each note leaves a blank line between notes.
-  \setlength\footnotesep{\dimexpr\mbtssinglebaseline+10pt\relax}%
+  \setlength\footnotesep{20.4pt}% 10pt strut height + one 12pt blank line
   \setlength{\skip\footins}{\mbtssinglebaseline}%
   \@ifpackageloaded{hyperref}{\hypersetup{hidelinks}}{}%
 }
 
-% Title metadata. Standard \title, \author, and \date remain available.
-\def\mbts@institution{Midwestern Baptist Theological Seminary}
-\def\mbts@papertype{A Research Paper}
-\def\mbts@course{}
-\def\mbts@professor{}
-\def\mbts@location{Kansas City, Missouri}
-\define@key{mbtsmeta}{institution}{\def\mbts@institution{#1}}
-\define@key{mbtsmeta}{paper-type}{\def\mbts@papertype{#1}}
-\define@key{mbtsmeta}{course}{\def\mbts@course{#1}}
-\define@key{mbtsmeta}{professor}{\def\mbts@professor{#1}}
-\define@key{mbtsmeta}{location}{\def\mbts@location{#1}}
-\newcommand*\mbtssetup[1]{\setkeys{mbtsmeta}{#1}}
-\renewcommand\maketitle{%
-  \ifx\mbts@course\@empty
-    \PackageWarningNoLine{mbts}{No course supplied; use \string\mbtssetup{course=...}}%
-  \fi
-  \begin{titlepage}
-    % Disable just the title-page anchor, avoiding duplicate page.1 with hyperref.
-    \@ifpackageloaded{hyperref}{\hypersetup{pageanchor=false}}{}%
-    \normalfont\normalsize\doublespacing\centering
-    \setlength\parindent{0pt}%
-    \vspace*{\dimexpr\mbtstitletop-\baselineskip\relax}%
-    \MakeUppercase{\mbts@institution}\par
-    \vspace{\the\mbtstitlegap plus 1fill}
-    \MakeUppercase{\@title}\par
-    \vspace{\the\mbtstitlegap plus 1fill}
-    \MakeUppercase{\mbts@papertype}\par
-    SUBMITTED IN PARTIAL FULFILLMENT\par
-    OF THE REQUIREMENTS FOR THE COURSE\par
-    \MakeUppercase{\mbts@course}\par
-    \ifx\mbts@professor\@empty\else
-      \MakeUppercase{\mbts@professor}\par
-    \fi
-    \vspace{\the\mbtstitlegap plus 1fill}
-    BY\par
-    \MakeUppercase{\@author}\par
-    \vspace{\the\mbtstitlegap plus 1fill}
-    \MakeUppercase{\mbts@location}\par
-    \MakeUppercase{\@date}\par
-  \end{titlepage}
-  \pagenumbering{arabic}%
-}
-
-\newcommand*\mbtsfrontmatter{\clearpage\pagenumbering{roman}}
-\newcommand*\mbtsmainmatter{\clearpage\pagenumbering{arabic}}
-\newcommand*\mbts@majorheading[1]{%
-  \par{\centering\normalfont\normalsize\setstretch{1}
-    \MakeUppercase{#1}\par}%
-  \nobreak\vspace{\mbtsheadafter}%
-  \@afterindenttrue\@afterheading}
-\renewcommand*\contentsname{CONTENTS}
-\renewcommand\tableofcontents{%
-  \clearpage\mbts@majorheading{\contentsname}%
-  \begingroup\setstretch{1}\@starttoc{toc}\endgroup}
-\renewcommand*\l@section{\@dottedtocline{1}{0pt}{0pt}}
+% Title pages, document divisions, illustrations, and review/annotation helpers.
+\RequirePackage{mbts-structure}
 
 % Block quotations retain the body font and indent only the left edge.
 \newenvironment{mbtsquote}{%
@@ -224,7 +183,7 @@
 % Manual bibliography: supply formatted entries in alphabetical order.
 \newcommand*\mbtsbibliographyname{BIBLIOGRAPHY}
 \newenvironment{mbtsbibliography}{%
-  \clearpage\mbts@majorheading{\mbtsbibliographyname}%
+  \clearpage\mbts@majorheading{\mbtsbibliographyname}\mbts@bibcontents%
   \begingroup\setstretch{1}\raggedright
   \list{}{%
     \setlength\leftmargin{\mbtsindent}%
@@ -234,11 +193,11 @@
 }{\endlist\endgroup}
 \newcommand\mbtsbibitem[1]{\item\relax #1}
 
-% Optional biblatex integration. Citation wording belongs to the chosen style.
+% Bibliography layout; use style=mbts for fourth-edition citation wording.
 \AtBeginDocument{%
   \@ifpackageloaded{biblatex}{%
     \defbibheading{mbtsbibliography}[\mbtsbibliographyname]{%
-      \clearpage\mbts@majorheading{#1}}%
+      \clearpage\mbts@majorheading{#1}\mbts@bibcontents}%
     \renewcommand*\bibfont{\normalfont\normalsize\setstretch{1}\raggedright}%
     \setlength\bibhang{\mbtsindent}%
     \setlength\bibitemsep{\mbtsentrysep}%
@@ -247,7 +206,7 @@
 }
 \newcommand*\mbtsprintbibliography[1][]{%
   \@ifpackageloaded{biblatex}{%
-    \printbibliography[heading=mbtsbibliography,#1]}{%
+    \printbibliography[heading=mbtsbibliography,filter=mbts,#1]}{%
     \PackageError{mbts}{Load biblatex before printing a database bibliography}%
       {Or use the mbtsbibliography environment for manual entries.}}}
 \endinput
