@@ -232,7 +232,7 @@ Genesis is written in full in narrative text. \mbtsbible{Genesis}{1:1}
     approval_source = (ROOT / "examples/dissertation.tex").read_text().replace(
         "% \\usepackage{pdfpages}", "\\usepackage{pdfpages}").replace(
         "% \\mbtsapproval{approval.pdf}",
-        "\\mbtsapproval{" + str(BUILD / engine / "sample.pdf") + "}")
+        "\\mbtsapproval{" + str(BUILD / engine / "example.pdf") + "}")
     approval = compile_tex(engine, "approval", approval_source)
     assert len(approval) == len(pages) + 1
     assert not footer(approval[0]) and not footer(approval[1])
@@ -353,8 +353,32 @@ def main():
     for tool in [*engines, "pdftotext"]:
         assert shutil.which(tool), f"Missing test dependency: {tool}"
     for engine in engines:
-        sample = compile_tex(engine, "sample", (ROOT / "paper.tex").read_text())
-        basic_layout(sample, [None, "1", "2", "3"])
+        sample = compile_tex(engine, "example", (ROOT / "example.tex").read_text(),
+                             bibliography=True)
+        basic_layout(sample, [None, "i", "ii", "iii", "iv", "v"]
+                     + [str(i) for i in range(1, len(sample) - 5)])
+        contents = text([sample[2]])
+        for title in ("Research Design", "Illustrative Findings",
+                      "APPENDIX A ILLUSTRATIVE INTERVIEW PROTOCOL",
+                      "APPENDIX B COMPLETE ILLUSTRATIVE ACTIVITY RECORD", "BIBLIOGRAPHY"):
+            assert title in contents, contents
+        for page, title in ((3, "Selected Checkpoints in the Invented Record"),
+                            (3, "Monthly Activity in the Fictional Congregation"),
+                            (4, "An Illustrative Care Conversation"),
+                            (5, "Recorded Conversations in Selected Months")):
+            assert title in text([sample[page]]), text([sample[page]])
+        body = text(sample[6:])
+        for expected in ("Ibid.", "(Jas 1:19–27)", "Luke 10:25–37",
+                         "Figure 1 presents", "Table 1 selects", "table 2.",
+                         "Graph 1 shows", "APPENDIX A", "APPENDIX B",
+                         "Park et al.", "Before You Offer a Casserole",
+                         "Avery, June,", "Mercer, Anne."):
+            assert expected in body, f"Missing example content: {expected}"
+        assert "??" not in body
+        for page in sample:
+            for word in words(page):
+                if word.text in ("Source:", "Note:"):
+                    near(word.attrib["xMin"], 72, tolerance=.5)
         check_fixture(compile_tex(engine, "layout", FIXTURE))
         package = FIXTURE.replace(r"\documentclass[font=termes]{mbts}",
                                   r"\documentclass[12pt]{article}\usepackage[font=termes]{mbts}")

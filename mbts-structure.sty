@@ -139,7 +139,9 @@
   \renewcommand*\thembtsappendix{\Alph{mbtsappendix}}
   \newcommand\mbtsappendix[1]{\clearpage\mbts@appendicestrue
     \refstepcounter{mbtsappendix}\mbts@majorheading{Appendix \thembtsappendix}%
-    \mbts@majorheading[\mbts@headgap]{#1}\mbts@contentsentry{Appendix \thembtsappendix\space #1}}
+    % Keep a literal space here: an explicit \space inside \MakeUppercase
+    % fails during hyperref's PDF bookmark conversion on current LaTeX.
+    \mbts@majorheading[\mbts@headgap]{#1}\mbts@contentsentry{Appendix {\thembtsappendix} #1}}
 \fi
 \ifmbts@fifthlevel
   \ifmbts@dissertation\else\PackageError{mbts}{Fifth level is dissertation-only}%
@@ -186,9 +188,9 @@
 \renewcommand\listoffigures{\mbts@list{List of Figures}{lof}}
 \renewcommand\listofgraphs{\mbts@list{List of Graphs}{lograph}}
 \renewcommand\listofillustrations{\mbts@list{List of Illustrations}{loillustration}}
-\newcommand\mbtsfiguresource[1]{\par\noindent\begingroup\setstretch{1}
+\newcommand\mbtsfiguresource[1]{\par\noindent\begingroup\setstretch{1}%
   \raggedright Source: #1\par\endgroup}
-\newcommand\mbtsfigurenote[1]{\par\noindent\begingroup\setstretch{1}
+\newcommand\mbtsfigurenote[1]{\par\noindent\begingroup\setstretch{1}%
   \raggedright Note: #1\par\endgroup}
 % The content argument is measured; oversized in-text objects generate an error
 % in submission mode, and a warning in draft mode. It includes caption/source.

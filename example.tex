@@ -1,0 +1,376 @@
+% A developed, fictional fourth-edition formatting demonstration.
+% Build: xelatex example; biber example; xelatex example; xelatex example
+% Or use `make sample` to keep auxiliary files under build/.
+% TeX Gyre Termes is an explicit draft substitute. For submission, install
+% licensed Times New Roman and change the option below to `submission`.
+\documentclass[font=termes]{mbts}
+\usepackage[american]{babel}
+\usepackage{csquotes}
+\usepackage[backend=biber,style=mbts]{biblatex}
+\usepackage{mbts-bible}
+\usepackage[hidelinks]{hyperref}
+\addbibresource{example.bib}
+
+\title{Learning to Listen:\\A Congregational Care Case Study}
+\author{Morgan Reed}
+\date{October 20, 2026}
+\mbtssetup{course={HT 0000 Demonstration Seminar}}
+\hypersetup{
+  pdftitle={Learning to Listen: A Congregational Care Case Study},
+  pdfauthor={Morgan Reed (fictional example)},
+  pdfsubject={MBTS formatting demonstration; invented study and sources}
+}
+% This course-paper example includes its bibliography in the contents.
+\AtBeginBibliography{\phantomsection
+  \addcontentsline{toc}{section}{BIBLIOGRAPHY}}
+
+\begin{document}
+\maketitle
+
+% These optional front-matter pages demonstrate a longer course paper.
+% Keep only the pages your assignment requires.
+\mbtsfrontmatter
+\begin{mbtspage}*{About This Example}
+This is a fictional research paper written to demonstrate the \texttt{mbtstex}
+class. The student, congregation, interviews, statistics, secondary sources,
+and source quotations are invented. The bibliography illustrates citation
+formatting; it does not identify research you can consult. Scripture references
+identify real biblical passages, but no Bible translation is quoted.
+
+The example includes four heading levels, automatic footnotes, a block
+quotation, Scripture references, numbered visuals, linked cross-references,
+appendices, and an automatically sorted bibliography. The source files contain
+comments at the main formatting decisions. The separate citation gallery
+demonstrates additional source types that would make this paper considerably
+longer and its fictional professor considerably less cheerful.
+
+The typeface is TeX Gyre Termes, an explicit draft substitute. For submission,
+use the class's \texttt{submission} option with licensed Times New Roman
+installed, replace the invented material, and follow the assignment's
+requirements. This explanatory page and the optional contents and visual lists
+are included for demonstration. They are not universal course-paper requirements.
+\end{mbtspage}
+\tableofcontents
+\listoftables
+\listoffigures
+\listofgraphs
+\mbtsmainmatter
+
+\section{Introduction}
+Cedar Grove Church had a welcome team, a care team, and a committee appointed
+to clarify the relationship between the two. It also had a coffee urn whose
+operating instructions were better documented than its follow-up procedures.
+This fictional case study asks how a small congregation might make listening
+and follow-through more consistent without turning every conversation into a
+new administrative department.
+
+The argument is modest: a repeatable sequence of attentive conversation,
+shared reflection, and an agreed next step can give volunteers a useful
+structure for care. In the invented literature accompanying this example,
+Anne Mercer distinguishes attentive presence from merely completing a
+task.\autocite[24]{mercer-presence} Her distinction supplies the working
+definition used here: a completed conversation creates room for the other
+person's account before the volunteer proposes an action.\autocite[24]{mercer-presence}
+The difference matters because a filled form can demonstrate that someone
+held a pen. It cannot, by itself, demonstrate that someone listened.
+
+The paper develops a theological frame, describes an illustrative training
+process, and examines invented monthly records and interview excerpts.
+The numbers show how to report a pattern with appropriate limits; they do not
+establish that the proposed process would produce the same results elsewhere.
+Appendix~\ref{app:protocol} supplies the interview prompts, and
+appendix~\ref{app:records} supplies the full illustrative record.
+
+% A deliberate page break keeps this major heading with its opening discussion.
+\clearpage
+\section{A Theological Frame for Attentive Care}
+\subsection{Listening Before Answering}
+James connects readiness to hear with restraint in speech and with action
+\mbtsbible{James}{1:19--27}. For volunteers, the sequence poses a practical
+question: has the speaker been understood before an answer has been prepared?
+
+Mercer presents attention as an ordinary discipline, while Daniel Vale and
+Miriam Bell emphasize an explicit next step.
+\autocites[39--41]{mercer-presence}[62]{vale-bell}
+These fictional sources frame listening and follow-through as one process.
+An eloquent promise that no one remembers is still uncompleted, even when it
+appears in beautifully formatted minutes.
+
+\subsection{Neighbor Love and Particular Needs}
+The encounter in \mbtsbibleref{Luke}{10:25--37} directs attention to a neighbor's
+concrete situation. Cedar Grove's volunteers therefore ask what help is wanted
+before recommending a familiar program. A meal, a ride, a later conversation,
+and no immediate action are distinct possibilities.
+
+Ruth Lin's fictional chapter places hospitality within the routines through
+which a congregation receives people and remembers their concerns.
+\autocite[87--89]{lin-hospitality} Here, hospitality names sustained attention
+rather than an additional event. The calendar already has sufficient events
+to qualify as a minor work of apocalyptic literature.
+
+\section{Research Design}
+\subsection{Setting and Participants}
+The constructed setting consists of forty-eight households and a volunteer
+team that grows from eight active members in January to twelve in December.
+Six volunteers participate in the imagined interviews. They are selected to
+illustrate different experiences of the process, not to represent a statistical
+sample. No people were recruited, no interviews were conducted, and no
+congregational records were collected for this example.
+
+The design combines a monthly activity log with brief interviews about how
+volunteers understand their work. A fictional dissertation by Leah Quill
+provides the methodological model for reading the two kinds of material
+together.\autocite[54--58]{quill-thesis} The log asks what was recorded; the
+interview asks what the volunteer thought was happening. Agreement between
+them may be informative, but a discrepancy can be equally useful.
+
+\subsection{The Three-Step Practice}
+Figure~\ref{fig:practice} presents the practice introduced in the hypothetical
+training. A volunteer first listens without drafting a solution aloud, then
+reflects back the concern, and finally agrees on an appropriate follow-up.
+The arrows indicate a usual order rather than a prohibition on returning to
+an earlier step. If a reflection is mistaken, the next move is to listen again.
+
+% Native LaTeX drawing: no external image, graphics program, or TikZ needed.
+\begin{mbtsvisual}{figure}{An Illustrative Care Conversation}
+\label{fig:practice}
+\centering
+\setlength{\unitlength}{1pt}
+\begin{picture}(420,46)
+  \put(0,12){\framebox(110,26){Listen}}
+  \put(110,25){\vector(1,0){45}}
+  \put(155,12){\framebox(110,26){Reflect}}
+  \put(265,25){\vector(1,0){45}}
+  \put(310,12){\framebox(110,26){Follow Up}}
+\end{picture}
+\mbtsfiguresource{Author's invented training model.}
+\mbtsfigurenote{The listener may return to an earlier step when clarification
+is needed. The arrows do not represent measured effects.}
+\end{mbtsvisual}
+
+Practice sessions use ordinary situations: an interrupted conversation, a
+request that needs clarification, and a promise that must be handed to another
+volunteer. The team rehearses a brief summary and a specific next step. Ezra
+Stone's fictional handbook describes a similar exercise in which volunteers
+distinguish an invitation to help from an assumption that help is wanted.
+\autocite[73]{stone-handbook}
+
+\subsubsection{Recording a Conversation}
+A record includes the month, whether a conversation was completed, and whether
+an agreed follow-up was completed during that month. The example uses aggregate
+counts, so a single household can appear in more than one conversation. These
+records therefore cannot be interpreted as counts of distinct people served.
+
+\paragraph{What Counts as Follow-Up}
+A follow-up is counted only when the agreed action occurs. Scheduling a call
+and making the call are separate events; the schedule alone does not complete
+the action. The coding guide also distinguishes a newly recorded action from
+an action carried over from a previous month.\autocite{cedar-guide}
+This definition is intentionally less generous than the committee's initial
+proposal to count sincere intentions, which would have produced exceptional
+results at very little inconvenience.
+
+\subsubsection{Reading the Interviews}
+The invented interview excerpts are read for three themes: attention,
+clarification, and follow-through. A response can receive more than one code.
+The four authors of \textit{Listening in Community} provide the fictional
+coding vocabulary used in this demonstration.\autocite[112--15]{park-team}
+Appendix~\ref{app:protocol} includes prompts that invite examples and counterexamples,
+including occasions when the process was unhelpful.
+
+\section{Illustrative Findings}
+\subsection{The Activity Record}
+Table~\ref{tab:checkpoints} selects three checkpoints from the full record in
+table~\ref{tab:monthly}. Recorded conversations rise from twelve in January
+to twenty-seven in June, while the active volunteer count rises from eight to
+ten. The table reports activity, not the quality of care or the number of
+distinct households reached. Completed follow-ups may concern conversations
+from an earlier month.
+
+\begin{mbtsvisual}{table}{Selected Checkpoints in the Invented Record}
+\label{tab:checkpoints}
+\centering
+\begin{mbtstabular}{lrrr}
+  Month & Volunteers & Conversations & Follow-ups \\
+  \hline
+  January & 8 & 12 & 7 \\
+  April   & 9 & 18 & 11 \\
+  June    & 10 & 27 & 18 \\
+  \hline
+\end{mbtstabular}
+\mbtsfiguresource{Invented data supplied in appendix~\ref{app:records}.}
+\mbtsfigurenote{Volunteers are active team members; the other columns count
+completed activities during the month.}
+\end{mbtsvisual}
+
+Graph~\ref{graph:activity} shows selected months across the full year. Its
+zero baseline and common scale make the numerical increase visible without
+presenting a small change as a cliff face. December's thirty-six conversations
+are three times January's twelve. This description is arithmetic, not a claim
+that the training caused a threefold improvement in ministry.
+
+% A monochrome bar graph drawn with rules, all on the same scale.
+\begin{mbtsvisual}{graph}{Recorded Conversations in Selected Months}
+\label{graph:activity}
+\centering
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{l@{\quad}|@{}lr}
+  & \multicolumn{1}{l}{Conversations (zero at left)} & Count \\
+  January   & \rule{1in}{7pt}       & 12 \\
+  March     & \rule{1.5in}{7pt}     & 18 \\
+  May       & \rule{1.91667in}{7pt} & 23 \\
+  July      & \rule{2.33333in}{7pt} & 28 \\
+  September & \rule{2.58333in}{7pt} & 31 \\
+  December  & \rule{3in}{7pt}       & 36 \\
+\end{tabular}
+\mbtsfiguresource{Invented monthly counts in table~\ref{tab:monthly}.}
+\mbtsfigurenote{Each inch represents twelve conversations. Counts include
+repeat conversations with the same household.}
+\end{mbtsvisual}
+
+The intervening months matter because a comparison of only two endpoints
+can conceal a plateau or a reversal. April's conversation count, for example,
+matches March's. Nothing in the log explains why. A responsible interpretation
+leaves that question open rather than assigning the plateau to a spiritual
+condition that the table was never designed to measure. Noah Wren makes the
+same distinction between recorded activity and inferred meaning in the
+fictional article used here.\autocite[49--51]{wren-measures}
+
+% Start the interview discussion on a fresh page to keep the quotation intact.
+\clearpage
+\subsection{A Volunteer Describes the Change}
+The following invented interview excerpt illustrates a shift from rapid
+problem solving toward clarification. Volunteer June Avery describes an
+early practice session:
+
+\begin{mbtsquote}
+I arrived with three suggestions and a clipboard. Before the other person
+finished the first sentence, I had mentally assigned two volunteers and a
+casserole. When I tried repeating back what I had heard, I discovered that
+the request was for someone to sit and listen. The clipboard had prepared me
+for almost everything except that. At the next meeting I wrote down the
+person's own description before writing an action. We still arranged help,
+but this time the help answered the question that had actually been asked.
+The casserole remained available for emergencies.\autocite{avery-interview}
+\end{mbtsquote}
+
+Avery's account gives the proposed practice a concrete shape: reflection
+interrupts an assumption and changes the next step. It does not establish
+that the same change occurred in every conversation. Another invented
+response describes the steps as awkward at first, especially when a
+volunteer repeated a summary too mechanically. The case therefore treats
+the sequence as a guide that requires judgment, not a script to be recited
+until the other person recognizes the closing prayer.
+
+\section{Interpretation and Limits}
+\subsection{What the Pattern Can Support}
+Within the constructed case, the records and interview excerpt are compatible
+with a team becoming more deliberate about care. The numeric record supplies
+a visible pattern, while the excerpt supplies one possible account of a
+changed habit. Mercer argues in a second fictional book that practical
+coordination can support a community's stated commitments when responsibility
+is clear.\autocite[91--94]{mercer-meetings} That argument helps frame a useful
+interpretation of the case without treating an activity count as a complete
+description of faithfulness.
+
+The strongest practical proposal is therefore to make the next step visible
+and reviewable. At a later meeting, a volunteer can ask whether an agreed
+action occurred and whether it met the expressed need. The team does not
+need a committee to investigate whether it needs a committee. It needs a
+shared understanding of who will do what, and an opportunity to correct a
+mistake.\footnote{The case distinguishes coordination from the number of meetings
+held. Compare \cite[97]{mercer-meetings}; \cite[66--68]{vale-bell}. A meeting can
+produce a useful decision, but its duration is not a unit of pastoral care.}
+
+\subsection{What the Pattern Cannot Support}
+Several alternative explanations remain available even within the fictional
+design. More active volunteers can produce more recorded conversations.
+Volunteers may become more consistent in recording work they already did.
+Households may make different requests at different times of year. Without
+additional evidence, the table cannot separate those possibilities from a
+change associated with training.\autocite[56]{wren-measures}
+
+The six interview responses also cannot establish what all households
+experienced. A volunteer's account of listening well may differ from the
+other person's account of being heard. A fuller hypothetical study would
+include those perspectives and actively examine cases that challenge its
+preferred explanation. Quill's fictional dissertation provides an example of
+this use of discrepant accounts.\autocite[121--24]{quill-thesis}
+In this demonstration, restraint is part of the argument rather than a
+paragraph added after the enthusiasm has spent the evidence.
+
+\clearpage
+\section{Conclusion}
+This fictional case proposes a small, repeatable practice: listen, reflect,
+and agree on a next step. The invented record illustrates how a writer can
+describe activity, connect it to qualitative material, and preserve the
+distinction between a pattern and an explanation. The theological frame
+keeps attention on particular neighbors; the procedural frame makes a
+promise easier to remember and review.
+
+For Cedar Grove, the useful next question would be whether people receiving
+care recognize the same improvement that volunteers describe. Until that
+question is examined, a rising graph remains an invitation to inquire.
+The coffee urn may continue to run on a fixed schedule. Congregational
+care requires a little more attention.
+
+\mbtsappendix{Illustrative Interview Protocol}
+\label{app:protocol}
+These prompts belong to the invented case study. They demonstrate an appendix
+that supports the discussion without interrupting it. A researcher adapting
+the example would develop questions appropriate to the actual study.
+
+\begin{enumerate}
+  \setlength{\itemsep}{0pt}
+  \setlength{\parsep}{0pt}
+  \item Describe a conversation in which you changed your understanding of
+    what the other person wanted.
+  \item What did you say or do to check that understanding?
+  \item Describe an agreed follow-up. How did you know it was complete?
+  \item When did the three-step practice feel awkward or unhelpful?
+  \item Describe a conversation that does not fit your overall assessment
+    of the training.
+  \item What would the other person say about the same encounter?
+\end{enumerate}
+
+The imagined interviewer asks for examples before asking for an overall
+evaluation. The order helps keep a general impression connected to a
+particular event. Follow-up prompts seek clarification rather than praise
+for the training. Neither coffee consumption nor the ability to pronounce
+\textit{hermeneutics} on the first attempt is treated as an outcome measure.
+
+\mbtsappendix{Complete Illustrative Activity Record}
+\label{app:records}
+Table~\ref{tab:monthly} contains all twelve invented monthly observations.
+Its size makes an appendix the appropriate place for it. Follow-ups can
+relate to earlier conversations; neither activity column counts unique people.
+
+% This visual exceeds half a text page, so it belongs in an appendix.
+\begin{mbtsvisual}{table}{Monthly Activity in the Fictional Congregation}
+\label{tab:monthly}
+\centering
+\renewcommand{\arraystretch}{1.8}
+\begin{mbtstabular}{lrrr}
+  Month & Volunteers & Conversations & Follow-ups \\
+  \hline
+  January   & 8  & 12 & 7  \\
+  February  & 8  & 14 & 8  \\
+  March     & 9  & 18 & 10 \\
+  April     & 9  & 18 & 11 \\
+  May       & 10 & 23 & 15 \\
+  June      & 10 & 27 & 18 \\
+  July      & 11 & 28 & 19 \\
+  August    & 11 & 30 & 21 \\
+  September & 11 & 31 & 23 \\
+  October   & 12 & 32 & 24 \\
+  November  & 12 & 34 & 26 \\
+  December  & 12 & 36 & 28 \\
+  \hline
+\end{mbtstabular}
+\mbtsfiguresource{Author's invented dataset; no actual congregation was studied.}
+\mbtsfigurenote{Volunteers are active team members, not new recruits.
+Conversation and follow-up counts reset each month.}
+\end{mbtsvisual}
+
+\mbtsprintbibliography
+\end{document}

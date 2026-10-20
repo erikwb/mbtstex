@@ -5,9 +5,17 @@ LaTeX formatting and citations for the **Midwestern Style Manual, fourth edition
 This version was audited against a user-supplied copy of the complete manual.
 The manual and its copyrighted sample papers are not distributed here.
 
-Start with [`paper.tex`](paper.tex); [`paper.pdf`](paper.pdf) is its compiled
-sample. The sample explicitly uses **TeX Gyre Termes**, a draft substitute. Use
+Start with [`example.tex`](example.tex); [`example.pdf`](example.pdf) is its compiled
+sample, with citation data in [`example.bib`](example.bib). The sample explicitly
+uses **TeX Gyre Termes**, a draft substitute. Use
 `submission` with licensed **Times New Roman** installed for submission.
+
+The developed example is a fictional congregational-care study with occasional
+seminary humor. It demonstrates optional front matter, all four heading levels,
+automatic source notes, Scripture references, a block quotation, two tables,
+a process diagram, a bar graph, linked cross-references, two appendices, and a
+sorted bibliography. Its study, quotations, and ten example sources are
+**invented for demonstration**, not research to cite in an actual assignment.
 
 The project covers the manual's document structures and listed citation
 categories. It cannot certify the argument, quotation accuracy, prose, or
@@ -35,15 +43,17 @@ Your text and argument.
 \end{document}
 ```
 
-Compile twice with XeLaTeX or LuaLaTeX. For the included draft:
+Compile the minimal document above twice with XeLaTeX or LuaLaTeX. The developed
+example also needs matching versions of **biblatex and Biber**. Its build target
+runs the compiler, Biber, and two more compiler passes:
 
 ```sh
-make sample        # builds build/paper.pdf and updates root paper.pdf
+make sample        # builds build/example.pdf and updates root example.pdf
 make examples      # builds dissertation, review, annotated bibliography, citations
 make check         # PDF layout and citation regression checks
 ```
 
-`build/` and auxiliary files are ignored by Git. The root `paper.pdf` is tracked.
+`build/` and auxiliary files are ignored by Git. The root `example.pdf` is tracked.
 `make bundle` optionally creates an archive under `build/`; no archive is needed
 to use the project. `ENGINE=lualatex` selects another compiler; `BIBER=...` selects
 Biber. Use a recent TeX Live or MiKTeX installation containing `fontspec`,
