@@ -105,8 +105,29 @@ tests exercise the new findings, export, and local-only processing.
 
 Website dates and other metadata are requested only when available. A visible
 HTTP(S) URL is required for website recognition; the linter never retrieves it.
-The new rules do not verify publication facts or rendered pages. Translated and
-standalone edited books, other source variants, and PDF layout remain on the backlog.
+The new rules do not verify publication facts or rendered pages. The fifth batch
+below adds translated and standalone edited books. Other source variants and
+PDF layout remain on the backlog.
+
+## Fifth implementation batch
+
+Existing rules now cover standalone edited books, authored books with editors,
+and authored books with translators (manual pp. 45–47). The count remains
+**60 rule types**: these source forms extend existing checks. Original synthetic
+fixtures and a LibreOffice-resaved DOCX exercise the contributor clauses; desktop
+and mobile browser tests cover upload, findings, export, and local processing.
+
+| Items | Implemented behavior | Remaining limits |
+| --- | --- | --- |
+| C01, C02, C12 | Resolves full/short citations using the author or primary editor; preserves separate editor and translator identities when matching editions | Initials versus expanded names, complex names, and unknown source forms need review; a short title can still be ambiguous between translations |
+| C03 | Carries recognized book identities through full notes, unambiguous short notes, and Ibid. chains | Commentary, multiple sources, incomplete credits, and ambiguous short notes block resolution; same-page placement requires a rendered document |
+| C06, C08 | Checks singular/plural primary editor labels, note versus bibliography credit labels, personal-name order, and upright credit spans outside italic titles | Combined labels, complex title boundaries, and general punctuation remain partial |
+| C09 | Recognizes separate post-title editor/translator clauses and simple numbered/revised editions; reviews explicitly empty contributor credits | Publication facts, missing credits absent from both note and bibliography, reprints, multivolume/series metadata, and combined contributor roles remain open |
+
+Separate editor and translator clauses are accepted; combined labels such as
+“ed. and trans.” remain unverified. These checks do not assert that a contributor
+list is factually complete or ordered as on the title page. No PDF or pagination
+checks were added in this batch.
 
 ## Implementation order
 

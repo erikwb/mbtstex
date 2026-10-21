@@ -16,8 +16,9 @@ function rangeProblems(value) {
 export function citationMechanics(record) {
   const results = [], syntax = [], { type, bibliography, head } = record;
   const add = (id, problems) => results.push({ id, ok: !problems.length, observed: problems.join(' ') });
-  if (head?.nameOrderWrong) syntax.push(bibliography ? 'Invert the first personal author’s name in the bibliography.' : 'Use given name then surname in the full note.');
+  if (head?.nameOrderWrong) syntax.push(bibliography ? `Invert the first personal ${record.primaryRole === 'editor' ? 'editor' : 'author'}’s name in the bibliography.` : 'Use given name then surname in the full note.');
   if (head?.delimiterWrong) syntax.push(bibliography ? 'Separate the author from the title with a period.' : 'Separate the author from the title with a comma.');
+  syntax.push(...(record.creditSyntax || []));
   const quoted = head?.rest.match(/^[“"]([^”"]+)[”"]([,.]?)/);
   if (quoted) {
     const expected = bibliography ? '.' : ',';

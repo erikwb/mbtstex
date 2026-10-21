@@ -1,6 +1,7 @@
 import { isBibleEdition, SCRIPTURE_CITATION } from './scripture.js';
 import { ibidUse } from './citations.js';
 import { citationMechanics } from './citation-mechanics.js';
+import { bookMetadata } from './book-metadata.js';
 
 const normalize = text => text.normalize('NFKC').toLocaleLowerCase('en').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 const titleKey = text => normalize(text).replace(/^(?:a|an|the) /, '');
@@ -153,32 +154,58 @@ function publication(value) {
 
 function span(start, text, italic, label) { return { start, end: start + text.length, italic, label }; }
 
+function bookHead(v, part, bibliography, previous) {
+  const ordinary = head(v, part, bibliography, previous);
+  const leading = part.text.match(/^(.+?),\s*(eds?\.?|editors?)([,.]?)\s+(.+)$/is);
+  if (leading && !(ordinary && ordinary.start < part.start + leading[1].length)) {
+    const boundary = nameBoundary(leading[1] + (bibliography ? '. ' : ', '), bibliography);
+    if (!boundary) return null;
+    const parsed = boundary.authors;
+    const expected = parsed.list.length === 1 ? 'ed.' : 'eds.';
+    const syntax = [];
+    if (parsed.truncated) syntax.push('Verify the full editor list; abbreviated editor lists are not resolved.');
+    else if (leading[2] !== expected) syntax.push(`Use “${expected}” after ${parsed.list.length === 1 ? 'the editor’s name' : 'the editors’ names'}.`);
+    if (leading[3] !== (bibliography ? '' : ',')) syntax.push(bibliography ? 'Use a period after the editor label before the bibliography title.' : 'Put a comma after the editor label before the book title.');
+    return { authors: parsed, primaryRole: 'editor', syntax, nameOrderWrong: parsed.bibliography !== bibliography,
+      leadingCredit: { start: part.start, end: part.start + leading[0].length - leading[4].length, italic: false, label: 'editor credit' },
+      rest: leading[4], start: part.start + leading[0].length - leading[4].length };
+  }
+  return ordinary && { ...ordinary, primaryRole: 'author', syntax: [] };
+}
+
 function book(v, part, bibliography, previous) {
-  const h = head(v, part, bibliography, previous);
+  const h = bookHead(v, part, bibliography, previous);
   if (!h) return null;
-  let match, title, imprint, tail, edition = '';
+  let match, title, imprint, tail, metadata;
   if (bibliography) {
     match = h.rest.match(/^(.+?)\.\s+([^()]*:[^()]*)\.?$/s);
     if (!match) return null;
     title = match[1]; imprint = match[2].replace(/\.$/, ''); tail = '';
-    const ed = imprint.match(/^((?:\d+(?:st|nd|rd|th)|Rev\.) ed\.)\s*/i);
-    if (ed) { edition = ed[1]; imprint = imprint.slice(ed[0].length); }
+    metadata = bookMetadata(imprint, h.start + h.rest.indexOf(match[2]), true, authors);
+    if (!metadata) return null;
+    imprint = metadata.rest;
   } else {
     match = h.rest.match(/^([^()]+?)\s*\(([^()]*)\)(.*)$/s);
     if (!match || (!match[2].includes(':') && !/\d{4}/.test(match[2]))) return null;
     title = match[1]; imprint = match[2]; tail = match[3];
-    const ed = title.match(/,\s*((?:\d+(?:st|nd|rd|th)|rev\.) ed\.)$/i);
-    if (ed) { edition = ed[1]; title = title.slice(0, ed.index); }
+    metadata = bookMetadata(title, h.start, false, authors);
+    if (!metadata) return null;
+    title = metadata.title;
     // Do not swallow a second source without its required separator.
     if (/\([^()]*:[^()]*\)/.test(tail)) return null;
   }
-  if (unsupported.test(h.rest) || /^(?:ed\.|eds\.),/.test(title)) return null;
+  if (unsupported.test(title) || unsupported.test(imprint) || /^(?:ed\.|eds\.),/.test(title)) return null;
   if (!letters(title)) return null;
   const pub = publication(imprint);
   const clean = cleanTitle(title);
   if (isBibleEdition(clean)) return { exempt: true };
-  return { type: 'book', form: 'full', authors: h.authors, title: clean, edition, ...pub, head: h, bibliography, tail,
-    spans: [span(h.start, title, true, 'book title')], quotedBook: /^[“"]/.test(title), p: v.p, text: part.text };
+  return { type: 'book', form: 'full', authors: h.authors, primaryRole: h.primaryRole, title: clean, edition: metadata.edition,
+    ...pub, missing: [...pub.missing, ...metadata.missing], credits: metadata.credits, creditSyntax: [...h.syntax, ...metadata.syntax],
+    editors: metadata.credits.find(c => c.role === 'editor')?.key || '', translators: metadata.credits.find(c => c.role === 'translator')?.key || '',
+    head: h, bibliography, tail,
+    spans: [span(h.start, title, true, 'book title'), ...(h.leadingCredit ? [h.leadingCredit] : []),
+      ...metadata.credits.map(c => ({ start: c.start, end: c.end, italic: false, label: `${c.role} credit` }))],
+    quotedBook: /^[“"]/.test(title), p: v.p, text: part.text };
 }
 
 function journal(v, part, bibliography, previous) {
@@ -199,7 +226,7 @@ function journal(v, part, bibliography, previous) {
     remainder = v.text.slice(firstItalic, part.start + part.text.length);
   }
   const match = remainder.match(/^([^()]*)\(([^()]*)\)(.*)$/s);
-  if (!match || match[1].includes(':')) return null;
+  if (!match || match[1].includes(':') || match[2].includes(':')) return null;
   const before = match[1].trim();
   const volume = before.match(/\s+(\d+)(?:,?\s+no\.\s*([^,]+))?\s*$/i);
   journalText = volume ? before.slice(0, volume.index).trim() : before;
@@ -340,13 +367,18 @@ function sameAuthors(a, b) {
   const count = a.truncated || b.truncated ? Math.min(names.length, other.length) : Math.max(names.length, other.length);
   return names.slice(0, count).every((n, i) => n === other[i]) && count <= names.length && count <= other.length;
 }
-function sameWork(a, b) { return a.type === b.type && titleKey(a.title) === titleKey(b.title) && sameAuthors(a.authors, b.authors); }
+function sameWork(a, b) { return a.type === b.type && a.primaryRole === b.primaryRole && titleKey(a.title) === titleKey(b.title) && sameAuthors(a.authors, b.authors); }
 function sameSource(a, b) {
   return sameWork(a, b) && (!a.url || !b.url || a.url === b.url) &&
+    (a.type !== 'book' || ['editors', 'translators'].every(k => normalize(a[k] || '') === normalize(b[k] || ''))) &&
     ['year', 'edition', 'publisher', 'journal', 'volume', 'issue', 'container', 'editors'].every(k => !a[k] || !b[k] || normalize(a[k]) === normalize(b[k]));
 }
 function sourceKey(r) {
-  return JSON.stringify([r.type, r.authors.list.map(a => a.key), titleKey(r.title), r.url, ...['year', 'edition', 'publisher', 'journal', 'volume', 'issue', 'container', 'editors'].map(k => normalize(r[k] || ''))]);
+  return JSON.stringify([r.type, r.primaryRole, r.authors.list.map(a => a.key), titleKey(r.title), r.url, ...['year', 'edition', 'publisher', 'journal', 'volume', 'issue', 'container', 'editors', 'translators'].map(k => normalize(r[k] || ''))]);
+}
+function bookAntecedent(record) {
+  const first = record.authors.list[0];
+  return { author: first.name, surname: first.surname, title: record.title, key: sourceKey(record) };
 }
 function typography(v, record) {
   const problems = [];
@@ -376,6 +408,9 @@ function joinedSources(v, part) {
 
 export function sourceCitationChecks(model) {
   const checks = [], unverified = [], bibliography = [], fullNotes = [], sequence = [];
+  // Reuse recognized book identities for Ibid., including editor-led books and
+  // different translations. A null value deliberately blocks the older fallback.
+  const bookSources = new Map();
   const add = (id, ok, record, observed) => checks.push({ id, ok, p: { ...record.p, text: record.text }, observed });
   function inspect(v, part, isBibliography, previous) {
     const record = parse(v, part, isBibliography, previous);
@@ -421,6 +456,8 @@ export function sourceCitationChecks(model) {
     for (const [index, part] of expanded.entries()) {
       const record = inspect(v, part, false);
       if (!record) continue;
+      record.noteId = id;
+      record.single = expanded.length === 1;
       recognized++;
       if (parts.length > 1 && index < expanded.length - 1 && /^[,:]?\s*[\divxlcdm ,:–-]*\.$/i.test((record.tail || '').trim())) {
         separated = false;
@@ -437,6 +474,12 @@ export function sourceCitationChecks(model) {
   const seenFull = [];
   for (const record of sequence) {
     if (record.form === 'full') {
+      if (record.type === 'book') {
+        const tail = record.tail.trim();
+        const single = record.single && !record.missing.length &&
+          (tail === '.' || /^,\s*.+\.$/.test(tail) && locator.test(tail.slice(1, -1).trim()));
+        bookSources.set(record.noteId, single ? bookAntecedent(record) : null);
+      }
       if (!seenFull.some(s => sameSource(s, record))) add('citation-first-full', true, record, 'The first recognized citation uses a full source form.');
       seenFull.push(record);
       const matches = bibliography.filter(b => sameSource(record, b));
@@ -456,6 +499,10 @@ export function sourceCitationChecks(model) {
       if (group) group.push(candidate); else groups.push([candidate]);
     }
     const resolved = groups.length === 1 ? groups[0] : null;
+    if (candidates.some(r => r.type === 'book')) {
+      const earlier = resolved && seenFull.find(s => resolved.some(r => sameSource(s, r)));
+      bookSources.set(record.noteId, record.single && /\.$/.test(record.text) && earlier && !earlier.missing.length ? bookAntecedent(earlier) : null);
+    }
     add('citation-short', !!resolved, record, groups.length > 1 ?
       `“${record.text}” could refer to ${groups.length} different works or editions. Include enough title/edition information to distinguish them.` :
       'No single source could be recognized for this shortened note. Check the author, short title, and earlier full citation.');
@@ -469,7 +516,7 @@ export function sourceCitationChecks(model) {
       add('citation-titles', !problems.length, record, `For this short title: ${problems.join('; ')}.`);
     }
   }
-  for (const record of [...fullNotes, ...bibliography].filter(r => r.type === 'book')) {
+  for (const record of [...fullNotes, ...bibliography].filter(r => r.type === 'book' && r.primaryRole === 'author')) {
     const peers = [...fullNotes, ...bibliography].filter(r => sameSource(record, r));
     const fullLists = peers.filter(r => !r.authors.truncated);
     const count = Math.max(0, ...fullLists.map(r => r.authors.list.length));
@@ -481,5 +528,5 @@ export function sourceCitationChecks(model) {
       !record.bibliography && a.truncated && !count ? 'No complete matching author list was recognized; verify that this book has four or more authors.' : '';
     add('citation-authors', !problem, record, problem);
   }
-  return { checks, unverified };
+  return { checks, unverified, bookSources };
 }

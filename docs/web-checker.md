@@ -64,9 +64,11 @@ manual page range and suggested correction beside each rule. It covers:
 - Footnote line spacing, indents, final punctuation, marker spacing, one space
   after an automatic note label, and an advisory about superscript/placement.
 - Opening Ibid. spelling/punctuation and whether the preceding note can be
-  resolved to one source. Ordinary book/journal notes, unambiguous short notes,
+  resolved to one source. Recognized book/journal notes, unambiguous short notes,
   and Ibid. chains are recognized in body-reference order. Missing notes,
   commentary, multiple sources, and unfamiliar forms require review.
+  Book identities preserve primary editor and translator credits; an ambiguous
+  shortened citation across different translations also blocks Ibid. resolution.
 - First full citations and ambiguous shortened notes for recognized ordinary
   books, journal articles, edited-book chapters, and website content, in
   body-reference order. Matching bibliography entries includes recognized
@@ -78,6 +80,13 @@ manual page range and suggested correction beside each rule. It covers:
   for their full and resolved short titles. Online journal citations with an
   access URL or recognized database may lack pagination. These are review
   checks; missing fields and uncertain matches need a reader.
+- Standalone edited books, authored books with editors, and translated books:
+  primary editor names/roles, singular or plural editor labels, and separate
+  post-title editor/translator credits. Notes use ed./trans.; bibliography entries
+  use Edited by/Translated by. Credits stay upright outside italic book titles.
+  Simple numbered/revised editions and identifiable contributor initials are
+  recognized. Contributor names and roles distinguish matching sources; an
+  omitted credit does not silently match a credited edition.
 - Chapter editors and bibliography page ranges; upright website names and
   available website dates/details. Anonymous and organization-named full web
   citations are accepted; missing authors, dates, or sponsors are not invented.
@@ -149,9 +158,13 @@ for review, rather than treated as successfully checked.
   A future layout checker will use a matching PDF freshly exported from Word,
   not assume that another converter reproduces Word's pagination.
 - **Citations:** the 66 LaTeX citation variants are not a Word citation parser.
-  Recognition does not yet cover translated books, standalone edited books,
-  blogs/social media, anonymous/corporate book authors, complex names, or every
-  punctuation and locator form. Initials are not expanded to full names.
+  Recognition does not yet cover combined labels such as “ed. and trans.”,
+  reprints, multivolume/series details, blogs/social media, anonymous/corporate
+  book authors, complex or single-word names, or every punctuation and locator
+  form. Initials are not expanded to full names. Contributor presence and
+  ordering are not checked against the actual publication; omitted credits can
+  only be exposed through a mismatch with another recognized citation. Repeated
+  primary-editor notation and complex title boundaries still need review.
   Web recognition requires a visible HTTP(S) URL; abbreviated date forms,
   anonymous short notes, and unavailable metadata may need review. Link targets
   are not fetched. The checker cannot infer a website's importance to a paper,

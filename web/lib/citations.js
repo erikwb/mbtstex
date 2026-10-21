@@ -21,6 +21,9 @@ export function fullSource(text) {
   // An entire ordinary book note, with one publication group and optional
   // locator. Commentary, multiple sources, and unfamiliar forms stay unknown.
   const book = value.match(new RegExp(`^([^,;]+), ([^();]+?) \\(([^():;]+): ([^();]+), (\\d{4}[a-z]?)\\)(?:,\\s*${locator})?\\.$`, 'u'));
+  // Contributor clauses are resolved by the book recognizer. Do not absorb an
+  // unsupported credit into the title and manufacture an Ibid. antecedent.
+  if (book && /(?:^|,\s*)(?:eds?\.|trans\.|edited by|translated by)(?=\s|,)/i.test(book[2])) return null;
   if (book) return source(book[1], book[2], book.slice(3).join(' '));
   const journal = value.match(new RegExp(`^([^,;]+), [“"]([^”";]+)[”"],? [^();]+ \\d+(?:, no\\. \\d+)? \\([^();]*\\d{4}\\): ${locator}\\.$`, 'u'));
   return journal ? source(journal[1], journal[2], value.slice(0, value.lastIndexOf('):'))) : null;
@@ -36,7 +39,7 @@ export function shortSource(text, known) {
   return candidates.length === 1 ? candidates[0] : null;
 }
 
-export function ibidChecks(model) {
+export function ibidChecks(model, bookSources = new Map()) {
   const notes = new Map(model.footnotes.map(note => [note.id, note]));
   const order = model.paragraphs.flatMap(p => p.refs.map(ref => ref.id));
   const known = new Map(), results = [];
@@ -52,7 +55,7 @@ export function ibidChecks(model) {
         source: previous });
       if (!use.valid || !use.single) previous = null;
     } else {
-      previous = fullSource(note.text) || shortSource(note.text, known);
+      previous = bookSources.has(id) ? bookSources.get(id) : fullSource(note.text) || shortSource(note.text, known);
       if (previous) known.set(previous.key, previous);
     }
   }

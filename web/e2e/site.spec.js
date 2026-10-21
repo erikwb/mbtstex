@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { fixtureParts, zipParts, makeDemo } from '../lib/demo.js';
 import { sourceExpansionParts } from '../tests/fixtures/source-expansion.js';
+import { bookCreditParts } from '../tests/fixtures/book-credits.js';
 
 const file = (bytes, name = 'my-paper.docx') => ({ name, mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', buffer: Buffer.from(bytes) });
 
@@ -94,7 +95,7 @@ test('source citation findings reach the report and export with their scope limi
   for (const title of titles) expect(text).toContain(title);
   expect(text).toContain('publisher');
   expect(text).toContain('2 different works');
-  expect(text).toContain('Translated works, blogs/social media');
+  expect(text).toContain('Combined contributor roles, reprints, blogs/social media');
   expect(text).toContain('Publication facts');
 });
 
@@ -118,6 +119,33 @@ test('chapters, websites, and citation mechanics work locally in the browser', a
   const text = await readFile(await (await pending).path(), 'utf8');
   for (const title of titles) expect(text).toContain(title);
   expect(text).toContain('critical to the paper or used frequently');
+  expect(requests.every(r => new URL(r.url).hostname === '127.0.0.1' && r.method === 'GET')).toBe(true);
+  expect(errors).toEqual([]);
+});
+
+test('translated and editor-led book findings reach the report and export locally', async ({ page }) => {
+  const requests = [], errors = [];
+  page.on('request', r => requests.push({ url: r.url(), method: r.method() }));
+  page.on('pageerror', e => errors.push(e.message));
+  await page.goto('/');
+  const saved = await readFile(new URL('../tests/fixtures/libreoffice-book-credits.docx', import.meta.url));
+  await page.locator('#file-input').setInputFiles(file(saved, 'book-credits.docx'));
+  await expect(page.locator('#report')).toBeVisible();
+  await expect(page.locator('#error-count')).toHaveText('0');
+  await expect(page.locator('#review-count')).toHaveText('0');
+  await page.getByRole('button', { name: 'Clear document' }).click();
+  await page.locator('#file-input').setInputFiles(file(zipParts(bookCreditParts({ mistakes: true })), 'book-credits.docx'));
+  await expect(page.locator('#report')).toBeVisible();
+  const titles = ['Review the citation’s publication fields', 'Review citation title formatting',
+    'Review citation punctuation and name order', 'Match the citation to a bibliography entry'];
+  for (const title of titles) await expect(page.locator('#findings').getByRole('heading', { name: title, exact: true })).toBeVisible();
+  const pending = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download report' }).click();
+  const text = await readFile(await (await pending).path(), 'utf8');
+  for (const title of titles) expect(text).toContain(title);
+  expect(text).toContain('translator name(s)');
+  expect(text).toContain('eds.');
+  expect(text).toContain('Combined contributor roles');
   expect(requests.every(r => new URL(r.url).hostname === '127.0.0.1' && r.method === 'GET')).toBe(true);
   expect(errors).toEqual([]);
 });
