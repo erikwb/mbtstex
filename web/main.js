@@ -133,6 +133,7 @@ $('#download-demo').addEventListener('click', () => download(makeDemo(), 'cedar-
 $('#filters').addEventListener('click', event => { const button = event.target.closest('[data-filter]'); if (button && report) { filter = button.dataset.filter; renderFindings(); } });
 
 const categories = new Map();
+$('#rule-count').textContent = Object.keys(RULES).length;
 for (const r of Object.values(RULES)) { if (!categories.has(r.group)) categories.set(r.group, []); categories.get(r.group).push(r); }
 for (const [name, rules] of categories) {
   const section = el('section', 'rule-category'); section.append(el('h3', '', name)); const list = el('ul');

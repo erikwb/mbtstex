@@ -1,3 +1,7 @@
 // Canonical book names and SBL abbreviations shared with mbts-bible.sty.
 // Detection of a quotation near a reference remains a review heuristic.
 export const BIBLE_REFERENCE = new RegExp("\\b(?:1\\s+Thessalonians|2\\s+Thessalonians|Song\\s+of\\s+Solomon|1\\s+Corinthians|2\\s+Corinthians|Song\\s+of\\s+Songs|1\\s+Chronicles|2\\s+Chronicles|Ecclesiastes|Lamentations|Deuteronomy|Philippians|Colossians|Revelation|1\\s+Timothy|2\\s+Timothy|Ephesians|Galatians|Leviticus|Zechariah|Zephaniah|1\\s+Samuel|2\\s+Samuel|Habakkuk|Jeremiah|Nehemiah|Philemon|Proverbs|1\\s+Kings|1\\s+Peter|1\\s+Thess|2\\s+Kings|2\\s+Peter|2\\s+Thess|Ezekiel|Genesis|Hebrews|Malachi|Matthew|Numbers|Obadiah|1\\s+John|2\\s+John|3\\s+John|Daniel|Esther|Exodus|Haggai|Isaiah|Joshua|Judges|Psalms|Romans|1\\s+Chr|1\\s+Cor|1\\s+Kgs|1\\s+Pet|1\\s+Sam|1\\s+Tim|2\\s+Chr|2\\s+Cor|2\\s+Kgs|2\\s+Pet|2\\s+Sam|2\\s+Tim|Hosea|James|Jonah|Micah|Nahum|Psalm|Titus|Acts|Amos|Deut|Eccl|Esth|Exod|Ezek|Ezra|Joel|John|Josh|Jude|Judg|Luke|Mark|Matt|Obad|Phil|Phlm|Prov|Ruth|Song|Zech|Zeph|Col|Dan|Eph|Gal|Gen|Hab|Hag|Heb|Hos|Isa|Jas|Jer|Job|Lam|Lev|Mal|Mic|Nah|Neh|Num|Pss|Rev|Rom|Ps)\\.?\\s+\\d+:\\d+", 'i');
+
+// Also recognize chapter-only references and single-chapter books. Bound the
+// numbers so a publication year after an author's name is not a Bible locator.
+export const SCRIPTURE_CITATION = new RegExp(BIBLE_REFERENCE.source.replace('\\d+:\\d+', '\\d{1,3}(?::\\d{1,3})?(?![\\d:])'), 'i');

@@ -181,7 +181,7 @@ function readParagraph(node, styles, theme, index) {
   for (const s of chain) { p = mergeParagraph(p, s.p); r = mergeRun(r, s.r, true); }
   p = mergeParagraph(p, direct);
   const result = { index, styleId, styleName: styles.styles.get(styleId)?.name || '',
-    styleNames: chain.map(s => s.name).join(' '), p, runs: [], refs: [], text: '', tokens: [],
+    styleNames: chain.map(s => s.name).join(' '), p, runs: [], refs: [], noteMarkers: [], text: '', tokens: [],
     pageBreakAfter: false, sectionEnd: !!child(child(node, 'pPr'), 'sectPr') };
   for (const run of descendants(node, 'r')) {
     if (isExcluded(run, node)) continue;
@@ -189,6 +189,7 @@ function readParagraph(node, styles, theme, index) {
     const own = readRunProperties(child(run, 'rPr'));
     for (const s of styles.chain(own.style || styles.defaultCharacter)) props = mergeRun(props, s.r, true);
     props = mergeRun(props, own);
+    if (props.hidden) { result.hidden = true; continue; }
     let text = '';
     for (const el of elements(run)) {
       if (!W.has(el.namespaceURI)) continue;
@@ -198,11 +199,13 @@ function readParagraph(node, styles, theme, index) {
         if (attr(el, 'type') === 'page') result.pageBreakAfter = true;
         else text += '\n';
       }
-      if (el.localName === 'footnoteRef') result.tokens.push('note-marker');
+      if (el.localName === 'footnoteRef') {
+        result.tokens.push('note-marker');
+        result.noteMarkers.push({ offset: result.text.length + text.length, props });
+      }
       if (el.localName === 'footnoteReference') result.refs.push({ id: attr(el, 'id'),
-        before: result.text + text, props, custom: on(child(run, 'customMarkFollows')) });
+        before: result.text + text, props, custom: ['1', 'true', 'on'].includes(attr(el, 'customMarkFollows')) });
     }
-    if (props.hidden) { result.hidden = true; continue; }
     if (text) {
       result.tokens.push(text.startsWith('\t') ? 'tab' : 'text');
       result.runs.push({ text, ...props, font: effectiveFont(props, text, theme) });

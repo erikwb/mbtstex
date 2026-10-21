@@ -2,7 +2,7 @@
 
 The [public checker](https://erikwb.github.io/mbtstex/) lives in `web/` and is
 published by GitHub Pages. It is an early release for **standard course papers**
-using the fourth-edition Midwestern Style Manual (2021), with 36 rule types.
+using the fourth-edition Midwestern Style Manual (2021), with 44 rule types.
 It does not certify a paper's compliance or replace assignment instructions.
 
 The [coverage roadmap](checker-roadmap.md) lists proposed additions, stronger
@@ -26,7 +26,7 @@ percentage. "No findings" means only that the checks that ran found no issues.
 Locations are paragraph order, not rendered page numbers. Footnotes are labeled
 by reference order; custom marks or numbering restarts may differ from Word's
 visible numbers. Only applicable, resolvable rules run, so the evaluated-rule
-count may be smaller than 36.
+count may be smaller than 44.
 
 ## Processing and privacy
 
@@ -57,16 +57,23 @@ manual page range and suggested correction beside each rule. It covers:
   and 10-point footnotes.
 - Body alignment, double spacing, first-line indentation, side indents,
   paragraph gaps, and repeated spaces after punctuation.
-- Recognized heading levels, alignment, weight, and an advisory about keeping
-  a heading with its following text.
-- Recognized title-page uppercase text, centering, and single spacing.
-- Footnote line spacing, indents, final punctuation, marker spacing, and an
-  advisory about superscript/placement.
+- Recognized heading levels, alignment, weight, capitalization, and an advisory
+  about keeping a heading with its following text.
+- Recognized title-page uppercase text, centering, single spacing, and a review
+  of required information and its order.
+- Footnote line spacing, indents, final punctuation, marker spacing, one space
+  after an automatic note label, and an advisory about superscript/placement.
 - Bibliography heading, single spacing, hanging indent, alignment, final
-  periods, an explicit new-page advisory, and simple surname ordering.
-- Recognized block quotation spacing and indentation.
+  periods, an explicit new-page advisory, surname ordering, title ordering for
+  a recognized repeated author, and optional repeated-author notation.
+- Recognized block quotation spacing and indentation, plus review checks for
+  a colon in the lead-in, enclosing quotation marks, and a terminal citation.
+  Consecutive quotation paragraphs are checked together, including across
+  explicit page breaks. Internal quotation marks are preserved.
 - A **heuristic** check for a translation declaration attached to the first
-  recognized inline Scripture quotation.
+  recognized inline or block Scripture quotation, including chapter-only and
+  single-chapter-book references. A separate review checks for the full
+  translation name, abbreviation, publication city, publisher, and year.
 - Alignment, font, and size of recognized footer PAGE fields.
 
 Formatting resolution combines document defaults, the default/named paragraph
@@ -84,25 +91,39 @@ for review and exempted from body-specific rules. Bibliography entries follow
 an identified BIBLIOGRAPHY heading. These classifications can be imperfect;
 inspect the excerpts and use meaningful Word styles.
 
+Bibliography recognition uses ordinary surname/name patterns and italicized
+title boundaries where available. Six underscores followed by a period can
+inherit the preceding recognized author; repeating the name is also accepted.
+Ambiguous author/title boundaries are disclosed for review. English titles
+for the same author are compared without an initial A, An, or The.
+
 ## What is not verified
 
 - **Rendered pages:** exact title layout, heading gaps, stranded headings,
   actual font substitution, page-number placement/sequence, title-page number
   suppression, visual dimensions, or the five-line threshold for block quotes.
   Word's double-spacing setting is checked as such; LaTeX baseline distances
-  are not used as Word requirements.
+  are not used as Word requirements. The heading advisory checks Word's
+  **Keep with next** setting; enabling it does not verify the rendered pages.
+  A future layout checker will use a matching PDF freshly exported from Word,
+  not assume that another converter reproduces Word's pagination.
 - **Citations:** the 66 LaTeX citation variants are not a Word citation parser.
   Source facts, full/short citation forms, Ibid., locator accuracy, attribution,
-  and completeness require review. Bibliography ordering only compares clearly
-  recognized author surnames; it does not verify all titles or corporate authors.
+  and completeness require review. Bibliography parsing is partial: anonymous
+  works, complex author lists, different authors sharing a surname, foreign
+  title articles, and underlined spaces used instead of literal underscores
+  can still need manual ordering checks.
 - **Scripture semantics:** the detector looks for inline quotation marks near a
-  canonical book name/abbreviation and a chapter:verse reference. It can miss
-  quotations in other forms or misunderstand nearby quotations. It does not
-  verify translation wording, publication details, every translation exception,
+  canonical book name/abbreviation and a numeric reference, or references in
+  recognized block quotations. It can miss quotations in other forms or
+  misunderstand nearby quotations. Declaration fields are checked for presence,
+  not factual accuracy or name/abbreviation agreement. It does not
+  verify translation wording, publication facts, every translation exception,
   or whether the recognized quotation is truly the first one in the paper.
 - **Special structures:** list/table/equation formatting, text boxes, imported
   document chunks, footnote numbering restarts/custom marks, complex-script
-  fonts, blank lines between entries/notes, and full title-page metadata.
+  fonts, blank lines between entries/notes, unusual or wrapped title metadata,
+  and the truth of supplied title-page information.
 - **Academic or program requirements:** argument, theology, plagiarism, prose,
   course instructions, dissertations, book reviews, and annotated bibliographies.
 

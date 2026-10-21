@@ -4,11 +4,12 @@ Audited against the supplied fourth-edition Midwestern Style Manual on
 20 October 2026. Page references are printed page numbers. The manual is not
 distributed with the project.
 
-The website currently has **36 rule types**. This inventory identifies **83
-backlog items**: new checks, improvements to existing checks, and rules for
-additional document profiles. It is a development inventory, not an official
-MBTS rule count or an exhaustive count of every instruction in the manual.
-Do not add 83 to 36 to calculate a compliance percentage.
+The website currently has **44 rule types**. The original inventory identified
+**83 items**: new checks, improvements to existing checks, and rules for
+additional document profiles. Progress is recorded below; 83 is not the number
+of remaining items. This is a development inventory, not an official MBTS rule
+count or an exhaustive count of every instruction in the manual. Counts of
+rules and backlog items do not establish a compliance percentage.
 
 | Area | Backlog items |
 | --- | ---: |
@@ -21,6 +22,27 @@ Do not add 83 to 36 to calculate a compliance percentage.
 | Book reviews and annotated bibliographies | 10 |
 | Dissertations | 16 |
 | **Total** | **83** |
+
+## First implementation batch
+
+Eight new rule types and stronger bibliography/Scripture recognition are
+implemented. These cover parts of ten inventory items; the limitations below
+remain open. Ambiguous structure produces review findings rather than errors.
+Regression cases are in [backlog.test.js](../web/tests/backlog.test.js), with
+additional parser and real-application fixtures in the test suite.
+
+| Items | Implemented behavior | Remaining limits |
+| --- | --- | --- |
+| L01 | Reviews required title fields and their recognizable order | Unusual/wrapped metadata and factual accuracy need review |
+| L06 | Reviews lowercase key words in headings; honors Word All caps | Proper names and language-dependent capitalization need context |
+| L09 | Checks one space after an automatic footnote label, including a nonbreaking space | Custom/missing labels receive review findings |
+| C13 | Compares recognized surnames and same-author titles; uses italic title boundaries for initials/corporate authors | Complex/anonymous entries, same-surname authors, and foreign articles remain partial |
+| C14 | Reviews optional six-underscore notation and resolves the preceding author | Underlined spaces and ambiguous predecessors need review |
+| S01 | Recognizes inline/block quotations, chapter-only references, and single-chapter books | First-quotation identification remains heuristic |
+| S02 | Checks translation name, abbreviation, city, publisher, and year separately | Does not verify publication facts or name/abbreviation agreement |
+| Q02 | Reviews the colon before a recognized block quotation | Depends on correct paragraph classification |
+| Q03 | Reviews enclosing quotation marks while preserving internal marks | Nested quotation interpretation needs context |
+| Q04 | Reviews a terminal footnote or parenthetical Scripture reference across a block's paragraphs | Inline quotations, source identity, and other paper profiles remain open |
 
 ## Implementation order
 
@@ -35,10 +57,11 @@ Do not add 83 to 36 to calculate a compliance percentage.
    different tasks. Include full notes, short notes, bibliography forms, and
    valid exceptions in that matrix.
 3. **Add optional PDF comparison.** Use the Word file for styles and document
-   structure, and a matching, freshly exported PDF for page positions. This
+   structure, and a matching PDF freshly exported from Word for page positions. This
    enables measured title layout, page numbering, stranded headings, note gaps,
    and figure placement. Mismatched document/PDF pairs must be detected or
-   explicitly disclosed. Keep both files in the browser.
+   explicitly disclosed. Keep both files in the browser. Prioritize L08
+   (stranded headings) among the first page-layout checks.
 4. **Add explicit document profiles.** Book review, annotated bibliography, then
    dissertation. Accept assignment overrides rather than guessing a program's
    requirements from the document.
@@ -49,6 +72,21 @@ save; they do not establish a fresh rendering. See Microsoft's
 Mozilla's [PDF.js browser examples](https://mozilla.github.io/pdf.js/examples/)
 demonstrate local page rendering and page geometry. A PDF comparison layer is
 a proposed feature; the website does not currently accept PDFs.
+
+Pagination must come from the user's Word export, not a DOCX conversion by
+LibreOffice or a browser renderer. Those engines are not guaranteed to match
+Word's page breaks. A PDF fixes the pages of that particular export; it cannot
+guarantee how the DOCX will paginate on another machine, with different fonts,
+or after further edits. See Microsoft's [Word PDF export guidance](https://support.microsoft.com/en-us/word/save-or-convert-to-pdf-on-your-mac).
+The checker must disclose text-matching or heading-location uncertainty and
+must not turn absent layout evidence into a passed orphan-heading check.
+
+Word's **Keep with next** option is already checked as a preventive advisory.
+Select a heading, then open Home → Paragraph dialog → Line and Page Breaks →
+Keep with next, or set it in the heading style. This keeps the heading with the
+start of the following paragraph. Empty paragraphs inserted between a heading
+and its text can interfere; use paragraph spacing for the gap. See Microsoft's
+[Keep text together guidance](https://support.microsoft.com/en-us/word/keep-text-together-in-word).
 
 ## Evidence and severity
 
@@ -221,5 +259,5 @@ implemented. Instructor/chair permissions are inputs, not facts a parser infers.
   facts, quotation fidelity, and context-dependent writing judgments in the
   human-review checklist. A formatting pass cannot certify them.
 
-This roadmap does not change the website's implemented rule count. The scope
-and limitations in [web-checker.md](web-checker.md) remain the current behavior.
+The inventory tables retain the original item IDs. Use the progress table above
+and [web-checker.md](web-checker.md) for the current implemented scope.

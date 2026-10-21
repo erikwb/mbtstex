@@ -21,8 +21,8 @@ export function fixtureParts({ clean = true } = {}) {
       clean ? '' : '<w:jc w:val="both"/><w:ind w:firstLine="0"/><w:spacing w:line="360" w:lineRule="auto" w:after="160"/>', reference(2)) +
     `<w:p><w:pPr><w:pStyle w:val="Normal"/></w:pPr>${run('The goal is to listen carefully before proposing a solution. A completed form records an activity; it does not prove that someone felt heard.',
       clean ? '' : '<w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="28"/>')}</w:p>` +
-    p('A Repeatable Practice', 'Heading2') + p('Listen, reflect, and agree on a next step. This sequence is an invented teaching example, not a finding from a real study. The team can return to listening whenever its summary is mistaken.') +
-    p('I arrived with three suggestions and a casserole. After listening, I discovered that the request was for a ride. The casserole remained available for emergencies. This quotation and its speaker are fictional.', 'BlockText') +
+    p('A Repeatable Practice', 'Heading2') + p('Listen, reflect, and agree on a next step. This sequence is an invented teaching example, not a finding from a real study. The team can return to listening whenever its summary is mistaken.' + (clean ? ' An invented volunteer described the experience:' : '')) +
+    p('I arrived with three suggestions and a casserole. After listening, I discovered that the request was for a ride. The casserole remained available for emergencies. This quotation and its speaker are fictional.', 'BlockText', '', clean ? reference(3) : '') +
     p('Conclusion', 'Heading1') + p('A useful procedure makes the next step clear without replacing attention to the person. Coffee can remain on a fixed schedule; care requires judgment.') +
     p('BIBLIOGRAPHY', 'BibliographyHeading') +
     (clean ? [
@@ -49,7 +49,7 @@ export function fixtureParts({ clean = true } = {}) {
       <w:style w:type="paragraph" w:styleId="BibliographyHeading"><w:name w:val="Bibliography Heading"/><w:basedOn w:val="Normal"/><w:pPr><w:jc w:val="center"/><w:ind w:firstLine="0"/><w:pageBreakBefore/></w:pPr></w:style>
       <w:style w:type="paragraph" w:styleId="Bibliography"><w:name w:val="Bibliography"/><w:basedOn w:val="Normal"/><w:pPr><w:ind w:left="${clean ? 720 : 0}" w:hanging="${clean ? 720 : 0}"/><w:spacing w:line="240" w:after="240"/></w:pPr></w:style>
     </w:styles>`,
-    'word/footnotes.xml': `<w:footnotes xmlns:w="${W}"><w:footnote w:type="separator" w:id="-1"><w:p><w:r><w:separator/></w:r></w:p></w:footnote>${clean ? note(1, 'Unless otherwise specified, all Bible references in this paper are to the English Standard Version (ESV) (Wheaton, IL: Crossway, 2025).') : ''}${note(2, 'Anne Aster, The Patient Ministry (Example City: Fictional Press, 2024), 24' + (clean ? '.' : ''))}</w:footnotes>`,
+    'word/footnotes.xml': `<w:footnotes xmlns:w="${W}"><w:footnote w:type="separator" w:id="-1"><w:p><w:r><w:separator/></w:r></w:p></w:footnote>${clean ? note(1, 'Unless otherwise specified, all Bible references in this paper are to the English Standard Version (ESV) (Wheaton, IL: Crossway, 2025).') : ''}${note(2, 'Anne Aster, The Patient Ministry (Example City: Fictional Press, 2024), 24' + (clean ? '.' : ''))}${clean ? note(3, 'Bennett Brew, After the Meeting (Example City: Fictional Press, 2025), 18. This source and quotation are invented.') : ''}</w:footnotes>`,
     'word/footer1.xml': `<w:ftr xmlns:w="${W}"><w:p><w:pPr><w:pStyle w:val="Normal"/><w:jc w:val="center"/><w:ind w:firstLine="0"/></w:pPr><w:fldSimple w:instr="PAGE"><w:r><w:t>1</w:t></w:r></w:fldSimple></w:p></w:ftr>`,
     'word/settings.xml': `<w:settings xmlns:w="${W}"><w:defaultTabStop w:val="720"/></w:settings>`,
   };

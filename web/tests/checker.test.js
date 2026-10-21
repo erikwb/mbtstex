@@ -23,7 +23,7 @@ test('clean reference document: defaults, all paragraph roles, notes, and footer
   const report = lintDocument(document);
   assert.equal(report.counts.error, 0, JSON.stringify(report.findings, null, 2));
   assert.equal(report.counts.review, 0, JSON.stringify(report.findings, null, 2));
-  assert.equal(report.stats.footnotes, 2);
+  assert.equal(report.stats.footnotes, 3);
   assert.equal(report.stats.bibliographyEntries, 2);
   assert.equal(document.titleDetected, true);
   assert.equal(document.footerParagraphs[0].pageField, true);
@@ -110,7 +110,6 @@ test('translation declaration must attach to the first recognized quotation', ()
 
 test('Scripture detection includes books outside the most common examples', () => {
   for (const reference of ['Mal 3:10', '1 Thess 5:17', 'Phlm 4', '2 Chronicles 7:14']) {
-    if (!reference.includes(':')) continue; // Chapter-only references are outside this conservative detector.
     const parts = fixtureParts({ clean: false });
     parts['word/document.xml'] = parts['word/document.xml'].replace('Jas 1:19', reference);
     assert.ok(has(lint(parts), 'translation-note'), reference);

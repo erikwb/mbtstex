@@ -1,4 +1,5 @@
-import { BIBLE_REFERENCE } from './scripture.js';
+import { SCRIPTURE_CITATION } from './scripture.js';
+import { titleProblems, lowercaseHeadingWords, bibliographyRecord, bibliographyOrder, translationDetails, quoteBlocks } from './conventions.js';
 
 export const EDITION = 'Midwestern Style Manual · 4th edition (2021)';
 const rule = (title, group, pages, fix, severity = 'error') => ({ title, group, pages, fix, severity });
@@ -17,11 +18,13 @@ export const RULES = {
   'sentence-space': rule('Use one space after punctuation', 'Body', '17', 'Remove the extra space after sentence punctuation. Check the excerpt before changing it.'),
   'heading-alignment': rule('Align the heading for its level', 'Headings', '16, 93', 'Center levels 1–2. Left-align levels 3–4. Use Word heading styles to identify the level.'),
   'heading-weight': rule('Use the right heading weight', 'Headings', '16, 93', 'Use bold for levels 1 and 3, and regular text for levels 2 and 4.'),
+  'heading-case': rule('Review heading capitalization', 'Headings', '16, 93', 'Use headline capitalization for key words. Check proper names and unusual spellings before changing them.', 'review'),
   'heading-level': rule('Review headings below level four', 'Headings', '16, 93', 'Course papers use up to four levels. The fifth level requires special doctoral approval.', 'review'),
   'heading-keep': rule('Keep headings with their text', 'Headings', '17', 'Consider Paragraph → Line and Page Breaks → Keep with next. Check the final pages for stranded headings.', 'review'),
   'title-caps': rule('Capitalize title-page text', 'Title page', '11–13', 'Use uppercase letters for the title-page information. Word’s All caps font setting is also recognized.'),
   'title-alignment': rule('Center title-page text', 'Title page', '11–13', 'Select the title-page paragraphs and choose Center alignment.'),
   'title-spacing': rule('Single-space title-page text', 'Title page', '13', 'Set title-page line spacing to Single. Verify the larger gaps between blocks in the finished document.'),
+  'title-fields': rule('Review the title-page information', 'Title page', '11–13', 'Check the school, paper title, paper type, course number/name, BY and student name, KANSAS CITY, MISSOURI, and due date in that order. Wrapped or unusual metadata may need manual review.', 'review'),
   'note-size': rule('Use 10-point footnotes', 'Footnotes', '18–19', 'Modify the Footnote Text style to 10 pt, then remove any conflicting size overrides.'),
   'note-spacing': rule('Single-space footnotes', 'Footnotes', '19', 'Set the Footnote Text style’s line spacing to Single.'),
   'note-indent': rule('Indent the first footnote line half an inch', 'Footnotes', '19', 'Set the first footnote paragraph to a 0.5-inch first-line indent, not a hanging indent.'),
@@ -29,16 +32,22 @@ export const RULES = {
   'note-period': rule('Review the footnote’s final punctuation', 'Footnotes', '19, 31–34', 'A standard source note ends with a period. Check whether this note needs final punctuation.', 'review'),
   'note-space': rule('Remove the space before the footnote marker', 'Footnotes', '19', 'The raised footnote marker should follow the preceding punctuation without an intervening space.'),
   'note-marker': rule('Check the footnote marker’s position', 'Footnotes', '18–19', 'Normally place a superscript footnote marker immediately after punctuation. Midsentence notes can be appropriate.', 'review'),
+  'note-label-space': rule('Use one space after the footnote number', 'Footnotes', '19, 32', 'Inside the footnote, put one space between the automatic note number and the note text. Remove tabs or additional spaces.'),
   'bib-spacing': rule('Single-space bibliography entries', 'Bibliography', '22', 'Set each bibliography entry’s line spacing to Single. Leave one blank line between entries.'),
   'bib-indent': rule('Use a half-inch hanging indent', 'Bibliography', '22', 'Set Paragraph → Special → Hanging, By 0.5 inches. The first line should begin at the left margin.'),
   'bib-alignment': rule('Left-align bibliography entries', 'Bibliography', '22', 'Choose Align Left for the entries; center the bibliography heading.'),
   'bib-period': rule('End bibliography entries with a period', 'Bibliography', '22', 'Check the entry and add its required final period.'),
   'bib-heading': rule('Format the bibliography heading', 'Bibliography', '22', 'Use BIBLIOGRAPHY in uppercase, centered above the entries.'),
-  'bib-order': rule('Check bibliography alphabetical order', 'Bibliography', '22–23', 'Arrange entries by author’s surname, then by title for the same author. Check corporate authors and repeated-author underscores manually.', 'review'),
+  'bib-order': rule('Check bibliography alphabetical order', 'Bibliography', '22–23', 'Arrange entries by author’s surname, then by title for the same author. Review entries whose author or title could not be identified.', 'review'),
+  'bib-repeated-author': rule('Review the repeated-author notation', 'Bibliography', '23', 'If replacing a repeated author, use six underscores and a period (______.), followed by a space. The preceding entry must identify the same author. Repeating the full name is also allowed.', 'review'),
   'bib-page': rule('Start the bibliography on a new page', 'Bibliography', '22–24', 'Use a page break before the heading, or verify that it already starts a fresh page in Word.', 'review'),
   'quote-spacing': rule('Single-space block quotations', 'Quotations', '105–106', 'Set the block quotation’s line spacing to Single.'),
   'quote-indent': rule('Indent the block quotation half an inch', 'Quotations', '105–106', 'Indent the quotation 0.5 inches from the left text margin and keep the right indent at 0.'),
+  'quote-leadin': rule('Introduce the block quotation with a colon', 'Quotations', '106', 'End the sentence introducing the block quotation with a colon. Review the paragraph classification if this is not a quotation.', 'review'),
+  'quote-marks': rule('Review quotation marks around the block', 'Quotations', '106', 'Remove enclosing quotation marks from a block quotation. Preserve quotation marks that belong to speech or quotations inside the passage.', 'review'),
+  'quote-citation': rule('Check the source at the end of the block quotation', 'Quotations', '105–106', 'Put the source footnote at the end of the quotation. Scripture may use a parenthetical reference according to the assignment. Other citation forms need manual review.', 'review'),
   'translation-note': rule('Identify the Bible translation', 'Scripture', '39', 'At the first Scripture quotation, add a footnote identifying the translation’s full name, abbreviation, publication city, publisher, and year.', 'review'),
+  'translation-details': rule('Complete the Bible translation declaration', 'Scripture', '39', 'Give the translation’s full name and abbreviation, followed by its publication city, publisher, and year. Verify these details against the edition you used.', 'review'),
   'footer-alignment': rule('Center page-number fields in the footer', 'Page numbering', '15', 'Center the footer paragraph containing the PAGE field. Check the title page and numbering sequence in Word.'),
 };
 
@@ -135,6 +144,11 @@ export function lintDocument(model) {
   if (!model.titleDetected) review('title-unidentified', 'Title-page boundaries were not identified',
     'The checker could not identify both the school name and the end of the title page.', null,
     'Check the title page against the manual. A real page break after it makes the boundary clear.', '11–13');
+  else {
+    const problems = titleProblems(model.paragraphs);
+    check('title-fields', !problems.length, model.paragraphs.find(p => p.kind === 'title'),
+      `Missing or unrecognized title information: ${problems.join('; ')}.`);
+  }
 
   const allParagraphs = [...model.paragraphs, ...model.footnotes.flatMap(n => n.paragraphs)];
   for (const p of allParagraphs) {
@@ -158,6 +172,8 @@ export function lintDocument(model) {
     }
     if (p.kind === 'heading') {
       const level = p.outline;
+      const lowercase = lowercaseHeadingWords(p);
+      check('heading-case', !lowercase.length, p, `Potentially uncapitalized heading words: ${lowercase.join(', ')}.`);
       check('heading-level', level <= 4, p, `Heading level ${level} detected.`);
       if (level <= 4) {
         check('heading-alignment', level <= 2 ? p.p.align === 'center' : left(p), p,
@@ -207,22 +223,64 @@ export function lintDocument(model) {
         `Footnote reference ${ref.id}: ${raised ? 'superscript' : 'superscript formatting not resolved'}; preceding text: “…${ref.before.slice(-45)}”.`);
     }
   }
-  for (const note of model.footnotes) if (note.text.trim()) check('note-period', punctuation(note.text), note.paragraphs[0], 'This note does not end with a period.');
+  for (const note of model.footnotes) if (note.text.trim()) {
+    const first = note.paragraphs[0];
+    check('note-period', punctuation(note.text), first, 'This note does not end with a period.');
+    const markers = first.noteMarkers || [];
+    const custom = model.paragraphs.some(p => p.refs.some(r => r.id === note.id && r.custom));
+    if (!custom && markers.length === 1 && !first.text.slice(0, markers[0].offset).trim()) {
+      const following = first.text.slice(markers[0].offset);
+      check('note-label-space', /^[ \u00a0]\S/u.test(following), first,
+        `Text after the note number begins ${JSON.stringify(following.slice(0, 30))}; expected one space followed by the note text.`);
+    } else review('unresolved-note-label', 'Check the spacing after this note label',
+      'The automatic note label could not be identified unambiguously, or the note uses a custom mark.', first,
+      'Check that a single space separates the visible note label from its text.', '19, 32');
+  }
   const bibliography = model.paragraphs.filter(p => p.kind === 'bibliography');
   let previous;
   for (const p of bibliography) {
-    const key = p.text.match(/^\s*([\p{L}][\p{L} '\-’]{0,60}),/u)?.[1];
-    if (key && previous) check('bib-order', previous.key.localeCompare(key, 'en', { sensitivity: 'base' }) <= 0, p,
-      `“${key}” appears after “${previous.key}”.`);
-    previous = key ? { key } : undefined;
+    const record = bibliographyRecord(p, previous);
+    if (record.repeated) check('bib-repeated-author', record.validRepeat && record.resolvedRepeat, p,
+      !record.validRepeat ? 'The repeated-author marker is not six underscores, a period, and a space.' :
+        'The author of the immediately preceding entry could not be resolved.');
+    const order = bibliographyOrder(previous, record);
+    if (order) check('bib-order', order.ok, p, order.observed);
+    else if (!record.author || !record.title || (previous?.surname === record.surname && !previous.author)) review('unresolved-bib-order', 'Bibliography order needs manual review',
+      'An author/title boundary could not be resolved confidently. Ordering involving this entry was only partially checked.', p,
+      'Check author and title order manually. Preserve italics on source titles when applicable.', '22–23');
+    previous = record;
   }
-  const quote = model.paragraphs.find(p => /[“"][^”"]{5,}[”"]/.test(p.text) && BIBLE_REFERENCE.test(p.text));
-  if (quote) {
-    const attached = model.footnotes.filter(n => quote.refs.some(r => r.id === n.id));
-    const declaration = attached.find(n => /Bible|Scripture|quotations|references|translation/i.test(n.text) && /\b(?:ESV|NASB|NIV|KJV|NKJV|NRSV|CSB|HCSB|NLT|NET|ASV|RSV|CEB|WEB)\b|Standard Version|King James|American Standard/i.test(n.text));
-    check('translation-note', !!declaration && /\b(?:18|19|20)\d{2}\b/.test(declaration.text) && declaration.text.includes(':'), quote,
-      declaration ? 'A likely translation declaration was found, but publication details may be incomplete.' :
-        'A possible Scripture quotation was found without a recognizable translation declaration in its attached footnotes. This detection is heuristic.');
+  const blocks = quoteBlocks(model.paragraphs);
+  for (const block of blocks) {
+    const first = block[0], last = block[block.length - 1];
+    const lead = model.paragraphs.slice(0, first.index).findLast(p => p.text.trim());
+    check('quote-leadin', !!lead && /:\s*$/.test(lead.text), first,
+      lead ? `The preceding paragraph ends “…${lead.text.trim().slice(-75)}”.` : 'No introductory paragraph was found.');
+    const text = block.map(p => p.text.trim()).join('\n');
+    const quotedText = text.replace(/\s*\([^()]*\)[.!?]?\s*$/, '').trim();
+    const wrapped = /^“[\s\S]*”[.!?]?$|^"[\s\S]*"[.!?]?$|^‘[\s\S]*’[.!?]?$/.test(quotedText);
+    check('quote-marks', !wrapped, first, 'Opening and closing quotation marks appear to enclose the whole block.');
+    const terminalScripture = last.text.match(/\(([^()]*)\)[.!?]?\s*$/)?.[1];
+    const finalNote = last.refs.some(ref => !last.text.slice(ref.before.length).trim() && model.footnotes.some(n => n.id === ref.id));
+    check('quote-citation', finalNote || !!terminalScripture && SCRIPTURE_CITATION.test(terminalScripture), last,
+      'No matching source footnote or recognized parenthetical Scripture reference was found at the end of this block.');
+  }
+  const candidates = model.paragraphs.filter(p => p.kind === 'body' && SCRIPTURE_CITATION.test(p.text)).flatMap(p => {
+    const match = p.text.match(/[“"][^”"]{5,}[”"]/);
+    return match ? [{ paragraph: p, refs: p.refs.filter(r => r.before.length >= match.index + match[0].length) }] : [];
+  });
+  candidates.push(...blocks.filter(block => SCRIPTURE_CITATION.test(block.map(p => p.text).join(' ')))
+    .map(block => ({ paragraph: block[0], refs: block.flatMap(p => p.refs) })));
+  const quotation = candidates.sort((a, b) => a.paragraph.index - b.paragraph.index)[0];
+  if (quotation) {
+    const attached = model.footnotes.filter(n => quotation.refs.some(r => r.id === n.id));
+    const declaration = attached.find(n => /Bible|Scripture|biblical/i.test(n.text) && /all|unless|quotations|references|translation|version|taken from|quoted from/i.test(n.text));
+    check('translation-note', !!declaration, quotation.paragraph,
+      'A possible Scripture quotation was found without a recognizable translation declaration in its attached footnotes. This detection is heuristic.');
+    if (declaration) {
+      const missing = translationDetails(declaration.text);
+      check('translation-details', !missing.length, declaration.paragraphs[0], `Missing or unrecognized declaration fields: ${missing.join('; ')}.`);
+    }
   }
   for (const p of model.footerParagraphs.filter(p => p.pageField)) {
     fonts(p, 12);
