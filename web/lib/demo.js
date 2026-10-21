@@ -7,9 +7,11 @@ const R = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
 const PACKAGE = 'http://schemas.openxmlformats.org/package/2006/relationships';
 const escape = text => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 const run = (text, props = '') => `<w:r>${props ? `<w:rPr>${props}</w:rPr>` : ''}<w:t xml:space="preserve">${escape(text)}</w:t></w:r>`;
+const sourceRuns = text => text.split(/(The Patient Ministry|After the Meeting)/g).filter(Boolean)
+  .map(part => run(part, /^(?:The Patient Ministry|After the Meeting)$/.test(part) ? '<w:i/>' : '')).join('');
 const reference = id => `<w:r><w:rPr><w:rStyle w:val="FootnoteReference"/></w:rPr><w:footnoteReference w:id="${id}"/></w:r>`;
-const p = (text, style = 'Normal', extra = '', after = '') => `<w:p><w:pPr><w:pStyle w:val="${style}"/>${extra}</w:pPr>${run(text)}${after}</w:p>`;
-const note = (id, text) => `<w:footnote w:id="${id}"><w:p><w:pPr><w:pStyle w:val="FootnoteText"/></w:pPr><w:r><w:rPr><w:rStyle w:val="FootnoteReference"/></w:rPr><w:footnoteRef/></w:r>${run(' ' + text)}</w:p></w:footnote>`;
+const p = (text, style = 'Normal', extra = '', after = '', titles = false) => `<w:p><w:pPr><w:pStyle w:val="${style}"/>${extra}</w:pPr>${titles ? sourceRuns(text) : run(text)}${after}</w:p>`;
+const note = (id, text, titles = false) => `<w:footnote w:id="${id}"><w:p><w:pPr><w:pStyle w:val="FootnoteText"/></w:pPr><w:r><w:rPr><w:rStyle w:val="FootnoteReference"/></w:rPr><w:footnoteRef/></w:r>${titles ? sourceRuns(' ' + text) : run(' ' + text)}</w:p></w:footnote>`;
 
 export function fixtureParts({ clean = true } = {}) {
   const title = ['MIDWESTERN BAPTIST THEOLOGICAL SEMINARY', 'LISTENING BEYOND THE COFFEE URN',
@@ -31,7 +33,7 @@ export function fixtureParts({ clean = true } = {}) {
     ] : [
       'Brew, Bennett. After the Meeting. Example City: Fictional Press, 2025',
       'Aster, Anne. The Patient Ministry. Example City: Fictional Press, 2024.',
-    ]).map(t => p(t, 'Bibliography')).join('');
+    ]).map(t => p(t, 'Bibliography', '', '', clean)).join('');
   return {
     '[Content_Types].xml': `<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/footnotes.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml"/><Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/><Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/></Types>`,
     '_rels/.rels': `<Relationships xmlns="${PACKAGE}"><Relationship Id="rId1" Type="${R}/officeDocument" Target="word/document.xml"/></Relationships>`,
@@ -49,7 +51,7 @@ export function fixtureParts({ clean = true } = {}) {
       <w:style w:type="paragraph" w:styleId="BibliographyHeading"><w:name w:val="Bibliography Heading"/><w:basedOn w:val="Normal"/><w:pPr><w:jc w:val="center"/><w:ind w:firstLine="0"/><w:pageBreakBefore/></w:pPr></w:style>
       <w:style w:type="paragraph" w:styleId="Bibliography"><w:name w:val="Bibliography"/><w:basedOn w:val="Normal"/><w:pPr><w:ind w:left="${clean ? 720 : 0}" w:hanging="${clean ? 720 : 0}"/><w:spacing w:line="240" w:after="240"/></w:pPr></w:style>
     </w:styles>`,
-    'word/footnotes.xml': `<w:footnotes xmlns:w="${W}"><w:footnote w:type="separator" w:id="-1"><w:p><w:r><w:separator/></w:r></w:p></w:footnote>${clean ? note(1, 'Unless otherwise specified, all Bible references in this paper are to the English Standard Version (ESV) (Wheaton, IL: Crossway, 2025).') : ''}${note(2, 'Anne Aster, The Patient Ministry (Example City: Fictional Press, 2024), 24' + (clean ? '.' : ''))}${clean ? note(3, 'Bennett Brew, After the Meeting (Example City: Fictional Press, 2025), 18. This source and quotation are invented.') : ''}</w:footnotes>`,
+    'word/footnotes.xml': `<w:footnotes xmlns:w="${W}"><w:footnote w:type="separator" w:id="-1"><w:p><w:r><w:separator/></w:r></w:p></w:footnote>${clean ? note(1, 'Unless otherwise specified, all Bible references in this paper are to the English Standard Version (ESV) (Wheaton, IL: Crossway, 2025).') : ''}${note(2, 'Anne Aster, The Patient Ministry (Example City: Fictional Press, 2024), 24' + (clean ? '.' : ''), clean)}${clean ? note(3, 'Bennett Brew, After the Meeting (Example City: Fictional Press, 2025), 18. This source and quotation are invented.', true) : ''}</w:footnotes>`,
     'word/footer1.xml': `<w:ftr xmlns:w="${W}"><w:p><w:pPr><w:pStyle w:val="Normal"/><w:jc w:val="center"/><w:ind w:firstLine="0"/></w:pPr><w:fldSimple w:instr="PAGE"><w:r><w:t>1</w:t></w:r></w:fldSimple></w:p></w:ftr>`,
     'word/settings.xml': `<w:settings xmlns:w="${W}"><w:defaultTabStop w:val="720"/></w:settings>`,
   };

@@ -55,11 +55,11 @@ test('real file selection checks a clean document and clears all document state'
 test('Scripture, Ibid., and original-language findings reach the report and export', async ({ page }) => {
   const parts = fixtureParts();
   parts['word/document.xml'] = parts['word/document.xml'].replace('Jas 1:19', 'Jas. 1:19, 2:1')
-    .replace('Aster, Anne. The Patient Ministry.', 'The Holy Bible: English Standard Version.')
+    .replace('The Patient Ministry', 'The Holy Bible: English Standard Version')
     .replace('<w:r><w:t xml:space="preserve">The goal is', '<w:r><w:rPr><w:i/></w:rPr><w:t>ἀγάπη </w:t></w:r><w:r><w:t xml:space="preserve">The goal is');
   parts['word/footnotes.xml'] = parts['word/footnotes.xml'].replace('Unless otherwise specified, all Bible references in this paper are to the English Standard Version (ESV) (Wheaton, IL: Crossway, 2025).', 'Ibid, 24.');
   await page.goto('/');
-  await expect(page.locator('#rule-count')).toHaveText('50');
+  await expect(page.locator('#rule-count')).toHaveText('55');
   await page.locator('#file-input').setInputFiles(file(zipParts(parts), 'reference-checks.docx'));
   await expect(page.locator('#report')).toBeVisible();
   const titles = ['Review Bible book abbreviations', 'Review Scripture reference separators',
@@ -71,6 +71,30 @@ test('Scripture, Ibid., and original-language findings reach the report and expo
   const text = await readFile(await (await pending).path(), 'utf8');
   for (const title of titles) expect(text).toContain(title);
   expect(text).toContain('Ibid. on the same page');
+});
+
+test('source citation findings reach the report and export with their scope limits', async ({ page }) => {
+  const parts = fixtureParts();
+  parts['word/document.xml'] = parts['word/document.xml'].replace('Brew, Bennett.', 'Aster, Anne.');
+  parts['word/footnotes.xml'] = parts['word/footnotes.xml']
+    .replace(/<w:footnote w:id="2">[\s\S]*?<\/w:footnote>/, '<w:footnote w:id="2"><w:p><w:pPr><w:pStyle w:val="FootnoteText"/></w:pPr><w:r><w:footnoteRef/></w:r><w:r><w:t xml:space="preserve"> Aster, 25.</w:t></w:r></w:p></w:footnote>')
+    .replace('Example City: Fictional Press, 2025', 'Example City: , 2025')
+    .replace('<w:rPr><w:i/></w:rPr><w:t xml:space="preserve">After the Meeting', '<w:t xml:space="preserve">After the Meeting');
+  await page.goto('/');
+  await page.locator('#file-input').setInputFiles(file(zipParts(parts), 'source-checks.docx'));
+  await expect(page.locator('#report')).toBeVisible();
+  const titles = ['Use a full citation the first time', 'Identify the source of the shortened note',
+    'Match the citation to a bibliography entry', 'Review the citation’s publication fields',
+    'Review citation title formatting'];
+  for (const title of titles) await expect(page.locator('#findings').getByRole('heading', { name: title, exact: true })).toBeVisible();
+  const pending = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download report' }).click();
+  const text = await readFile(await (await pending).path(), 'utf8');
+  for (const title of titles) expect(text).toContain(title);
+  expect(text).toContain('publisher');
+  expect(text).toContain('2 different works');
+  expect(text).toContain('Chapters, websites, edited/translated works');
+  expect(text).toContain('Publication facts');
 });
 
 test('invalid and damaged documents show a recoverable error', async ({ page }) => {

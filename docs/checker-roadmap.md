@@ -4,7 +4,7 @@ Audited against the supplied fourth-edition Midwestern Style Manual on
 20 October 2026. Page references are printed page numbers. The manual is not
 distributed with the project.
 
-The website currently has **50 rule types**. The original inventory identified
+The website currently has **55 rule types**. The original inventory identified
 **83 items**: new checks, improvements to existing checks, and rules for
 additional document profiles. Progress is recorded below; 83 is not the number
 of remaining items. This is a development inventory, not an official MBTS rule
@@ -64,6 +64,27 @@ These checks preserve recognizable inline quotations. Scripture checks also
 exclude italicized note titles and inspect only the terminal parenthetical of
 a recognized block quotation. Cross-paragraph quotations and ambiguous source
 boundaries remain limitations. None of these additions verifies pagination.
+
+## Third implementation batch
+
+Five review checks add source recognition for ordinary books and journal
+articles. Regression cases are in [citations.test.js](../web/tests/citations.test.js).
+Recognized full and short forms are checked in body-reference order; uncertain
+source forms are explicitly left for review.
+
+| Items | Implemented behavior | Remaining limits |
+| --- | --- | --- |
+| C01 | Reviews shortened notes without an unambiguous earlier full citation; a bibliography entry alone does not satisfy the first-note requirement | Only recognized ordinary book/journal forms; embedded commentary and unfamiliar source forms need review |
+| C02 | Matches short titles and surnames against the whole source catalogue; distinguishes recognized authors, works, and editions | Complex names, initials versus full names, unusual locators, and unsupported source forms remain open |
+| C08 | Checks book/journal italics and upright, quoted article titles, including resolved short titles and inherited formatting | Embedded emphasis, unusual title punctuation, other source types, and missing style information need review |
+| C09 | Checks book city/publisher/year and journal volume/date/applicable pages; accepts online articles without pagination | Facts, source-specific issue requirements, editors/translators, complex editions, and other metadata remain open |
+| C12 | Reviews missing, duplicate, or mismatched recognizable bibliography entries; allows additional consulted works and Bible exceptions | Chapters, websites, other source-specific exceptions, and unrecognized bibliography entries need manual matching |
+
+The source matcher handles up to three named personal authors, identifiable
+initials, repeated-author notation, simple edition labels, and semicolon-separated
+sources. It does not fetch URLs or verify publication facts. Edited-volume
+chapters and websites are the next source types to add; PDF layout checks and
+other document profiles remain separate work.
 
 ## Implementation order
 
@@ -280,5 +301,5 @@ implemented. Instructor/chair permissions are inputs, not facts a parser infers.
   facts, quotation fidelity, and context-dependent writing judgments in the
   human-review checklist. A formatting pass cannot certify them.
 
-The inventory tables retain the original item IDs. Use the progress table above
+The inventory tables retain the original item IDs. Use the progress tables above
 and [web-checker.md](web-checker.md) for the current implemented scope.

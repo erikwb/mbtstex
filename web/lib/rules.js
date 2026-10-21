@@ -2,6 +2,7 @@ import { SCRIPTURE_CITATION, scriptureReferences, isBibleEdition } from './scrip
 import { titleProblems, lowercaseHeadingWords, bibliographyRecord, bibliographyOrder, translationDetails, quoteBlocks } from './conventions.js';
 import { ibidChecks } from './citations.js';
 import { referenceText, originalLanguageRuns } from './text-context.js';
+import { sourceCitationChecks } from './source-citations.js';
 
 export const EDITION = 'Midwestern Style Manual · 4th edition (2021)';
 const rule = (title, group, pages, fix, severity = 'error') => ({ title, group, pages, fix, severity });
@@ -37,6 +38,11 @@ export const RULES = {
   'note-label-space': rule('Use one space after the footnote number', 'Footnotes', '19, 32', 'Inside the footnote, put one space between the automatic note number and the note text. Remove tabs or additional spaces.'),
   'ibid-form': rule('Review Ibid. punctuation', 'Citations', '33', 'Use Ibid. for the same source and locator, or Ibid., 25. for a changed page. Keep the period before the comma. Unusual locators and substantive notes may need manual review.', 'review'),
   'ibid-source': rule('Check the preceding source for Ibid.', 'Citations', '33', 'Ibid. must refer to the single source in the immediately preceding note. Use a full or unambiguous short citation when that source is unclear. Also check that Ibid. is not the first footnote on a page.', 'review'),
+  'citation-first-full': rule('Use a full citation the first time', 'Citations', '33, 43, 52–53', 'Give the full source citation in its first footnote. A bibliography entry alone does not replace that note. Check earlier unrecognized citations before adding another full citation.', 'review'),
+  'citation-short': rule('Identify the source of the shortened note', 'Citations', '33', 'Use a short title when the author has more than one cited work. Add enough detail to distinguish editions or authors with the same surname. Check that an earlier full citation identifies the source.', 'review'),
+  'citation-bibliography': rule('Match the citation to a bibliography entry', 'Citations', '35, 43, 52–53', 'Add or correct the matching bibliography entry for the cited book or journal article. Check author names, title, and edition/publication details. Extra consulted works may remain in the bibliography.', 'review'),
+  'citation-fields': rule('Review the citation’s publication fields', 'Citations', '43–44, 52–53', 'For an ordinary book, give the publication city, publisher, and year. For a journal article, give the journal, volume, date, and applicable pages. Verify missing or unrecognized fields against the source; unpaginated online articles may differ.', 'review'),
+  'citation-titles': rule('Review citation title formatting', 'Citations', '43, 52–53, 102', 'Italicize book and journal titles. Put article titles in quotation marks and upright type. Apply the corresponding formatting to identifiable shortened titles too. Review unusual titles and embedded emphasis manually.', 'review'),
   'bib-spacing': rule('Single-space bibliography entries', 'Bibliography', '22', 'Set each bibliography entry’s line spacing to Single. Leave one blank line between entries.'),
   'bib-indent': rule('Use a half-inch hanging indent', 'Bibliography', '22', 'Set Paragraph → Special → Hanging, By 0.5 inches. The first line should begin at the left margin.'),
   'bib-alignment': rule('Left-align bibliography entries', 'Bibliography', '22', 'Choose Align Left for the entries; center the bibliography heading.'),
@@ -61,7 +67,7 @@ export const RULES = {
 
 export const NOT_CHECKED = [
   { title: 'Exact appearance of the finished pages', detail: 'Title-page vertical positions, heading gaps, page breaks, orphaned headings, actual page numbers, installed/substituted fonts, and the size and placement of visuals need a final PDF review.' },
-  { title: 'Citation accuracy and completeness', detail: 'Publication facts, quoted page numbers, full/short note requirements, Ibid. on the same page, and missing attributions are not verified. Ibid. source recognition covers only ordinary book/journal notes, resolvable short notes, and chains; other forms need review.' },
+  { title: 'Citation accuracy and completeness', detail: 'Full/short forms, bibliography matches, publication fields, and title formatting are checked only for recognized ordinary books and journal articles. Chapters, websites, edited/translated works, complex names, and unfamiliar forms need manual review. Publication facts, locator accuracy, Ibid. on the same page, and missing attributions are not verified.' },
   { title: 'Writing and interpretation', detail: 'Argument quality, theology, quotation fidelity, plagiarism, contextual capitalization, and the meaning of a passage require a reader.' },
   { title: 'Other paper types and special formatting', detail: 'This release checks standard course papers. Dissertation, book-review, and annotated-bibliography requirements; lists, tables, equations, text boxes, complex-script fonts, and transliterations need separate review.' },
   { title: 'Spacing between notes and bibliography entries', detail: 'Blank paragraphs, paragraph spacing, and page boundaries can interact. Check that there is a single blank line between entries and notes in the finished document.' },
@@ -267,6 +273,10 @@ export function lintDocument(model) {
       'The opening Ibid. citation does not match the ordinary Ibid. or Ibid., locator. form.');
     check('ibid-source', result.resolved, result.note.paragraphs[0], result.reason);
   }
+  const citations = sourceCitationChecks(model);
+  for (const result of citations.checks) check(result.id, result.ok, result.p, result.observed);
+  for (const result of citations.unverified) review('unverified-citation', 'Review this unrecognized source citation',
+    result.detail, result.p, 'Compare this citation with the manual’s source-specific form. This release recognizes ordinary books and journal articles; other forms need manual review.', '33, 43–68');
   const bibliography = model.paragraphs.filter(p => p.kind === 'bibliography');
   let previous;
   for (const p of bibliography) {

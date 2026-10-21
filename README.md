@@ -2,7 +2,7 @@
 
 **[Check a Word paper in your browser →](https://erikwb.github.io/mbtstex/)**
 
-The MBTS linter accepts `.docx` course papers and checks 50 types of
+The MBTS linter accepts `.docx` course papers and checks 55 types of
 formatting rules, with specific findings, suggested fixes, and manual page
 references. Files stay on your device. Try the built-in example, filter the
 results, or download a report. This is an early release with explicit

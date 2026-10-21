@@ -102,11 +102,11 @@ test('Bible bibliography review distinguishes editions from secondary scholarshi
     ['The Holy Bible: A Commentary', 0], ['The Message of Romans', 0],
   ]) {
     const parts = fixtureParts();
-    parts['word/document.xml'] = parts['word/document.xml'].replace('Aster, Anne. The Patient Ministry.', `${title}.`);
+    parts['word/document.xml'] = parts['word/document.xml'].replace('The Patient Ministry', title);
     assert.equal(findings(parts, 'bible-bibliography').length, expected, title);
   }
   const parts = fixtureParts();
-  parts['word/document.xml'] = parts['word/document.xml'].replace(run('Aster, Anne. The Patient Ministry. Example City: Fictional Press, 2024.'),
+  parts['word/document.xml'] = parts['word/document.xml'].replace(run('Aster, Anne. ') + run('The Patient Ministry', '<w:i/>') + run('. Example City: Fictional Press, 2024.'),
     run('Example Publishing. ') + run('English Standard Version', '<w:i/>') + run('. Example City: Fictional Press, 2024.'));
   assert.equal(findings(parts, 'bible-bibliography').length, 1);
 });
@@ -202,5 +202,5 @@ test('complex-script italics inherit, toggle through styles, and respect direct 
 test('reports retain the explicit limitation on Ibid. page placement', () => {
   const report = lint(notes([book, 'Ibid.']));
   assert.match(reportText(report), /Ibid\. on the same page/);
-  assert.equal(report.stats.rulesAvailable, 50);
+  assert.equal(report.stats.rulesAvailable, 55);
 });
