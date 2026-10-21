@@ -9,9 +9,9 @@ test('demo is checked locally, with filtering, report download, and no browser e
   page.on('pageerror', e => errors.push(e.message));
   page.on('request', r => requests.push({ url: r.url(), method: r.method() }));
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('MBTS paper');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('MBTS linter');
   await page.screenshot({ path: `build/home-${info.project.name}.png`, fullPage: true });
-  await page.getByRole('button', { name: 'Try the example' }).click();
+  await page.getByRole('button', { name: 'Run sample' }).click();
   await expect(page.locator('#report')).toBeVisible();
   await expect(page.locator('#error-count')).not.toHaveText('0');
   await expect(page.locator('#review-count')).not.toHaveText('0');
@@ -60,7 +60,7 @@ test('invalid and damaged documents show a recoverable error', async ({ page }) 
   await expect(page.getByRole('alert')).toContainText('not a readable');
   await expect(page.locator('#report')).toBeHidden();
   await expect(page.locator('#choose-file')).toBeEnabled();
-  await page.getByRole('button', { name: 'Try the example' }).click();
+  await page.getByRole('button', { name: 'Run sample' }).click();
   await expect(page.locator('#report')).toBeVisible();
   await expect(page.getByRole('alert')).toBeHidden();
 });

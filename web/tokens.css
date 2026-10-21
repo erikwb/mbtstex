@@ -1,12 +1,12 @@
 :root {
-  --paper: #f6f4ee;
-  --white: #fffefa;
-  --ink: #243a34;
-  --green: #32624b;
-  --muted: #66685e;
-  --line: #dedfd3;
-  --red: #943f31;
-  --amber: #8a5a20;
+  --paper: #ffffff;
+  --ink: #24272c;
+  --muted: #626770;
+  --line: #dfe2e7;
+  --subtle: #f6f7f9;
+  --link: #2457a7;
+  --red: #ad3030;
+  --amber: #875c14;
   --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --serif: Georgia, 'Times New Roman', serif;
+  --mono: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace;
 }

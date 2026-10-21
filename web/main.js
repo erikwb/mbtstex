@@ -135,7 +135,7 @@ $('#filters').addEventListener('click', event => { const button = event.target.c
 const categories = new Map();
 for (const r of Object.values(RULES)) { if (!categories.has(r.group)) categories.set(r.group, []); categories.get(r.group).push(r); }
 for (const [name, rules] of categories) {
-  const section = el('section', 'rule-category'); section.append(el('h4', '', name)); const list = el('ul');
+  const section = el('section', 'rule-category'); section.append(el('h3', '', name)); const list = el('ul');
   for (const r of rules) { const item = el('li'); item.append(el('span', '', r.title), el('span', '', `pp. ${r.pages}`)); list.append(item); }
   section.append(list); $('#rule-list').append(section);
 }
