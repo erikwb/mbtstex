@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Check your Word course paper against the fourth-edition Midwestern Style Manual. Private, browser-based MBTS formatting checks with specific fixes." />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'" />
+    <meta name="theme-color" content="#f6f4ee" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <title>MBTS Checker — a second set of eyes for your paper</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#choose-file">Skip to document checker</a>
+    <header class="site-header wrap">
+      <a class="brand" href="./" aria-label="MBTS Checker home"><span class="brand-mark" aria-hidden="true">m.</span><span>MBTS <strong>Checker</strong><small>BY MBTSTEX</small></span></a>
+      <nav aria-label="Main navigation">
+        <a href="#coverage">What we check</a>
+        <a href="https://github.com/erikwb/mbtstex#quick-start">LaTeX template <span aria-hidden="true">↗</span></a>
+        <a class="nav-github" href="https://github.com/erikwb/mbtstex">GitHub <span aria-hidden="true">↗</span></a>
+      </nav>
+    </header>
+    <main class="wrap">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="live-dot" aria-hidden="true"></span> FOURTH EDITION · EARLY RELEASE</p>
+          <h1 id="hero-title">A second set of eyes<br />for your <em>MBTS paper.</em></h1>
+          <p class="hero-description">Catch formatting mistakes before you submit. Get clear findings, references to the manual, and a practical fix for each one.</p>
+          <p class="hero-aside">Because your footnotes have enough to say<br class="desktop-break" /> without being the wrong size.</p>
+          <div class="privacy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v3"/></svg><span><strong>Your paper stays yours.</strong> Files are checked on this device. No uploads, accounts, or AI services.</span></div>
+        </div>
+        <div class="upload-card">
+          <div class="card-heading"><span class="step-label">01 / START HERE</span><span class="local-badge">Browser only</span></div>
+          <h2>Let’s check your paper.</h2>
+          <p class="profile-label">Standard course paper <span>· Midwestern, 4th edition</span></p>
+          <input id="file-input" type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden />
+          <button id="choose-file" class="dropzone" type="button" aria-describedby="file-help">
+            <svg class="document-icon" viewBox="0 0 60 66" aria-hidden="true"><path d="M13 3h23l13 13v45H13z"/><path d="M36 3v14h13M22 28h18M22 36h18M22 44h11"/><circle cx="44" cy="51" r="12"/><path d="m39 51 4 4 7-8"/></svg>
+            <span class="drop-title">Drop your Word document here</span>
+            <span class="choose-label">or choose a file <span aria-hidden="true">↗</span></span>
+            <span id="file-help" class="file-help">.docx · up to 20 MB</span>
+          </button>
+          <div id="processing" class="processing" role="status" hidden><span class="spinner" aria-hidden="true"></span><span id="processing-text">Reading the document’s formatting…</span></div>
+          <p id="file-error" class="file-error" role="alert" hidden></p>
+          <div class="demo-row"><span>No paper handy?</span><button id="try-demo" type="button">Try the example <span aria-hidden="true">→</span></button></div>
+          <p class="upload-note">Have an older .doc file? Save it as <strong>Word Document (.docx)</strong> first. PDFs and dissertations aren’t supported in this release.</p>
+        </div>
+      </section>
+
+      <section id="report" class="report" aria-labelledby="report-title" hidden>
+        <div class="section-heading">
+          <div><p class="eyebrow">02 / YOUR RESULTS</p><h2 id="report-title" tabindex="-1">Your formatting report</h2><p id="document-name" class="document-name"></p></div>
+          <div class="report-actions"><button id="download-report" class="button button-dark" type="button">Download report <span aria-hidden="true">↓</span></button><button id="clear-report" class="button button-light" type="button">Clear document</button></div>
+        </div>
+        <p id="demo-notice" class="demo-notice" hidden>This is an invented demonstration document with deliberate mistakes. <button id="download-demo" type="button">Download the sample .docx</button></p>
+        <div class="metrics" aria-label="Report summary">
+          <div class="metric metric-error"><span class="metric-label">Errors</span><strong id="error-count">0</strong><span>Settings that conflict with a rule</span></div>
+          <div class="metric metric-review"><span class="metric-label">Needs review</span><strong id="review-count">0</strong><span>Possible issues to check in context</span></div>
+          <div class="metric"><span class="metric-label">Not checked</span><strong id="unchecked-count">6</strong><span>Areas that still need your judgment</span></div>
+        </div>
+        <p id="document-stats" class="document-stats"></p>
+        <div class="report-toolbar"><div id="filters" class="filters" role="group" aria-label="Filter findings">
+          <button type="button" data-filter="all" aria-pressed="true">All findings</button>
+          <button type="button" data-filter="error" aria-pressed="false">Errors</button>
+          <button type="button" data-filter="review" aria-pressed="false">Needs review</button>
+          <button type="button" data-filter="unchecked" aria-pressed="false">Not checked</button>
+        </div><span id="result-count" class="result-count" aria-live="polite"></span></div>
+        <p class="location-note">Locations use paragraph order, not page numbers. Footnotes follow their reference order. Related findings are grouped together.</p>
+        <div id="findings"></div>
+        <details class="evaluated"><summary>See which checks ran</summary><p>Checks run only where the paragraph’s role and the required settings can be resolved. A check with no findings is not a certification of the whole paper.</p><div id="evaluated-checks"></div></details>
+      </section>
+
+      <section id="coverage" class="coverage" aria-labelledby="coverage-title">
+        <div class="coverage-intro"><p class="eyebrow">A CHECKER WITH ITS LIMITS IN VIEW</p><h2 id="coverage-title">Know what’s covered.</h2><p>Based on the <cite>Midwestern Style Manual</cite>, fourth edition (2021). Start with the findings, then give the finished pages a human review.</p></div>
+        <div class="coverage-grid">
+          <article><span class="coverage-symbol" aria-hidden="true">Aa</span><h3>The measurable details</h3><p>Page size and margins. Fonts and sizes. Body spacing and indents. Styled headings, footnotes, and bibliography entries.</p><span class="coverage-tag">EXPLICIT FORMATTING CHECKS</span></article>
+          <article><span class="coverage-symbol serif-symbol" aria-hidden="true">“ ”</span><h3>The things worth a look</h3><p>A likely missing Bible translation note. Unclear heading styles. Citation punctuation and bibliography order. Context matters here.</p><span class="coverage-tag">FLAGGED FOR YOUR REVIEW</span></article>
+          <article><span class="coverage-symbol" aria-hidden="true">¶</span><h3>The final read</h3><p>Exact page layout, source accuracy, argument, and your professor’s instructions still need a reader. No compliance score can replace that.</p><span class="coverage-tag">HUMAN JUDGMENT REQUIRED</span></article>
+        </div>
+        <details class="rule-details"><summary>View the rule list and limitations</summary><div id="rule-list"></div><h3>Outside this checker’s scope</h3><div id="scope-list"></div><p><a href="https://github.com/erikwb/mbtstex/blob/main/docs/web-checker.md">Technical coverage and testing ↗</a> · <a href="https://github.com/erikwb/mbtstex/blob/main/docs/author-checklist.md">Author’s submission checklist ↗</a></p></details>
+      </section>
+      <noscript><p class="file-error">JavaScript is needed to inspect your document locally. Enable it to use the checker; no file is uploaded.</p></noscript>
+    </main>
+    <footer class="site-footer wrap"><p>Made with <a href="https://github.com/erikwb/mbtstex">mbtstex</a>. Built for the last look. <a href="./third-party-notices.txt">Dependency licenses</a>.</p><p>Independent project. Not affiliated with or endorsed by MBTS.</p></footer>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

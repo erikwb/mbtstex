@@ -1,9 +1,21 @@
 # mbtstex
 
+**[Check a Word paper in your browser →](https://erikwb.github.io/mbtstex/)**
+
+The new MBTS Checker accepts `.docx` course papers and checks 36 types of
+formatting rules, with specific findings, suggested fixes, and manual page
+references. Files stay on your device. Try the built-in example, filter the
+results, or download a report. This is an early release with explicit
+[coverage limits](docs/web-checker.md); it does not certify a submission.
+
 LaTeX formatting and citations for the **Midwestern Style Manual, fourth edition
 (2021)**, used by Midwestern Baptist Theological Seminary and Spurgeon College.
 This version was audited against a user-supplied copy of the complete manual.
 The manual and its copyrighted sample papers are not distributed here.
+
+The website source is in [`web/`](web/). Run `npm ci`, `npm test`, and
+`npm run build` to produce `build/site/`. GitHub Actions tests the site and
+publishes it to GitHub Pages. The LaTeX workflow below remains independent.
 
 Start with [`example.tex`](example.tex); [`example.pdf`](example.pdf) is its compiled
 sample, with citation data in [`example.bib`](example.bib). The sample explicitly
