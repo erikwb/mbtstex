@@ -5,6 +5,9 @@ published by GitHub Pages. It is an early release for **standard course papers**
 using the fourth-edition Midwestern Style Manual (2021), with 36 rule types.
 It does not certify a paper's compliance or replace assignment instructions.
 
+The [coverage roadmap](checker-roadmap.md) lists proposed additions, stronger
+checks, and future document profiles separately from the implemented rules.
+
 ## Use it
 
 Choose or drop a `.docx` file, up to 20 MB. An older `.doc` must first be saved

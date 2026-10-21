@@ -36,8 +36,8 @@ export const RULES = {
   'bib-heading': rule('Format the bibliography heading', 'Bibliography', '22', 'Use BIBLIOGRAPHY in uppercase, centered above the entries.'),
   'bib-order': rule('Check bibliography alphabetical order', 'Bibliography', '22–23', 'Arrange entries by author’s surname, then by title for the same author. Check corporate authors and repeated-author underscores manually.', 'review'),
   'bib-page': rule('Start the bibliography on a new page', 'Bibliography', '22–24', 'Use a page break before the heading, or verify that it already starts a fresh page in Word.', 'review'),
-  'quote-spacing': rule('Single-space block quotations', 'Quotations', '94–95', 'Set the block quotation’s line spacing to Single.'),
-  'quote-indent': rule('Indent the block quotation half an inch', 'Quotations', '94–95', 'Indent the quotation 0.5 inches from the left text margin and keep the right indent at 0.'),
+  'quote-spacing': rule('Single-space block quotations', 'Quotations', '105–106', 'Set the block quotation’s line spacing to Single.'),
+  'quote-indent': rule('Indent the block quotation half an inch', 'Quotations', '105–106', 'Indent the quotation 0.5 inches from the left text margin and keep the right indent at 0.'),
   'translation-note': rule('Identify the Bible translation', 'Scripture', '39', 'At the first Scripture quotation, add a footnote identifying the translation’s full name, abbreviation, publication city, publisher, and year.', 'review'),
   'footer-alignment': rule('Center page-number fields in the footer', 'Page numbering', '15', 'Center the footer paragraph containing the PAGE field. Check the title page and numbering sequence in Word.'),
 };
@@ -199,7 +199,7 @@ export function lintDocument(model) {
     }
     if (p.kind === 'possible-heading' || p.kind === 'possible-quote') review('uncertain-structure', 'Confirm this paragraph’s role',
       p.kind === 'possible-heading' ? 'This looks like a heading, but has no recognized heading level.' : 'This may be a block quotation, but has no recognized quotation style.', p,
-      'Apply the appropriate Word style, or review this paragraph manually. Body-specific checks were skipped here.', '15–17, 94–95');
+      'Apply the appropriate Word style, or review this paragraph manually. Body-specific checks were skipped here.', '15–17, 105–106');
     for (const ref of p.refs) {
       check('note-space', !/\s$/.test(ref.before), p, 'Whitespace appears immediately before a footnote marker.');
       const raised = ref.props.vertical === 'superscript' || (ref.props.position || 0) > 0;
