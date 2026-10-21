@@ -82,6 +82,7 @@ function readRunProperties(node) {
   return compact({
     style: value(node, 'rStyle'), size: number(value(node, 'sz')),
     bold: on(child(node, 'b')), italic: on(child(node, 'i')), caps: on(child(node, 'caps')),
+    italicCs: on(child(node, 'iCs')), complexScript: on(child(node, 'cs')), rtl: on(child(node, 'rtl')),
     hidden: on(child(node, 'vanish')), vertical: value(node, 'vertAlign'), position: number(value(node, 'position')),
     fonts: fonts ? compact(Object.fromEntries(['ascii', 'hAnsi', 'asciiTheme', 'hAnsiTheme', 'eastAsia', 'cs']
       .map(key => [key, attr(fonts, key)]))) : undefined,
@@ -110,7 +111,7 @@ function mergeRun(base, next, style = false) {
   }
   // In styles, bold/italic/caps/vanish are toggle properties. Direct
   // formatting is absolute, including an explicit false value.
-  if (style) for (const key of ['bold', 'italic', 'caps', 'hidden']) {
+  if (style) for (const key of ['bold', 'italic', 'italicCs', 'caps', 'hidden']) {
     if (next[key] !== undefined) merged[key] = next[key] ? !base[key] : base[key];
   }
   return merged;

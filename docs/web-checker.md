@@ -2,7 +2,7 @@
 
 The [public checker](https://erikwb.github.io/mbtstex/) lives in `web/` and is
 published by GitHub Pages. It is an early release for **standard course papers**
-using the fourth-edition Midwestern Style Manual (2021), with 44 rule types.
+using the fourth-edition Midwestern Style Manual (2021), with 50 rule types.
 It does not certify a paper's compliance or replace assignment instructions.
 
 The [coverage roadmap](checker-roadmap.md) lists proposed additions, stronger
@@ -26,7 +26,7 @@ percentage. "No findings" means only that the checks that ran found no issues.
 Locations are paragraph order, not rendered page numbers. Footnotes are labeled
 by reference order; custom marks or numbering restarts may differ from Word's
 visible numbers. Only applicable, resolvable rules run, so the evaluated-rule
-count may be smaller than 44.
+count may be smaller than 50.
 
 ## Processing and privacy
 
@@ -63,6 +63,10 @@ manual page range and suggested correction beside each rule. It covers:
   of required information and its order.
 - Footnote line spacing, indents, final punctuation, marker spacing, one space
   after an automatic note label, and an advisory about superscript/placement.
+- Opening Ibid. spelling/punctuation and whether the preceding note can be
+  resolved to one source. Ordinary book/journal notes, unambiguous short notes,
+  and Ibid. chains are recognized in body-reference order. Missing notes,
+  commentary, multiple sources, and unfamiliar forms require review.
 - Bibliography heading, single spacing, hanging indent, alignment, final
   periods, an explicit new-page advisory, surname ordering, title ordering for
   a recognized repeated author, and optional repeated-author notation.
@@ -74,6 +78,15 @@ manual page range and suggested correction beside each rule. It covers:
   recognized inline or block Scripture quotation, including chapter-only and
   single-chapter-book references. A separate review checks for the full
   translation name, abbreviation, publication city, publisher, and year.
+- Review of recognized Bible book abbreviations against the recommended SBL
+  forms, commas/semicolons between recognized references, and clear Bible-edition
+  bibliography entries. Full book names are accepted; instructor preferences
+  take precedence. Inline quotations and italicized note titles are excluded;
+  only the terminal parenthetical is inspected in a recognized block quotation.
+- Review of Greek/Hebrew italics in body text and notes. Greek uses the ordinary
+  italic property unless complex-script formatting applies; Hebrew uses the
+  separate complex-script italic property. Inheritance, style toggles, and
+  direct overrides are resolved. Recognizable inline quotations are excluded.
 - Alignment, font, and size of recognized footer PAGE fields.
 
 Formatting resolution combines document defaults, the default/named paragraph
@@ -108,7 +121,7 @@ for the same author are compared without an initial A, An, or The.
   A future layout checker will use a matching PDF freshly exported from Word,
   not assume that another converter reproduces Word's pagination.
 - **Citations:** the 66 LaTeX citation variants are not a Word citation parser.
-  Source facts, full/short citation forms, Ibid., locator accuracy, attribution,
+  Source facts, full/short citation requirements, Ibid. page placement, locator accuracy, attribution,
   and completeness require review. Bibliography parsing is partial: anonymous
   works, complex author lists, different authors sharing a surname, foreign
   title articles, and underlined spaces used instead of literal underscores
@@ -120,6 +133,12 @@ for the same author are compared without an initial A, An, or The.
   not factual accuracy or name/abbreviation agreement. It does not
   verify translation wording, publication facts, every translation exception,
   or whether the recognized quotation is truly the first one in the paper.
+  Reference parsing covers canonical books and a limited alternative-abbreviation
+  list. Unknown book forms, cross-paragraph quotations, source-title boundaries,
+  verse existence, and punctuation outside recognized reference lists need review.
+- **Original-language context:** transliteration identification, Greek symbols
+  used as mathematics, and italicized source-title exceptions are not decided
+  by Unicode script detection. Review the flagged passage before editing it.
 - **Special structures:** list/table/equation formatting, text boxes, imported
   document chunks, footnote numbering restarts/custom marks, complex-script
   fonts, blank lines between entries/notes, unusual or wrapped title metadata,
@@ -160,4 +179,6 @@ changes on `main`. Pull requests run the same checks without deployment.
 
 Technical references: [Word package structure](https://learn.microsoft.com/en-us/office/open-xml/general/how-to-create-a-package),
 [Word run properties](https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.wordprocessing.runproperties),
+[complex-script italics](https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.wordprocessing.italiccomplexscript?view=openxml-3.0.1),
+[complex-script formatting](https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.wordprocessing.complexscript?view=openxml-3.0.1),
 and [GitHub Pages workflows](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).

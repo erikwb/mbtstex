@@ -1,5 +1,7 @@
-import { SCRIPTURE_CITATION } from './scripture.js';
+import { SCRIPTURE_CITATION, scriptureReferences, isBibleEdition } from './scripture.js';
 import { titleProblems, lowercaseHeadingWords, bibliographyRecord, bibliographyOrder, translationDetails, quoteBlocks } from './conventions.js';
+import { ibidChecks } from './citations.js';
+import { referenceText, originalLanguageRuns } from './text-context.js';
 
 export const EDITION = 'Midwestern Style Manual · 4th edition (2021)';
 const rule = (title, group, pages, fix, severity = 'error') => ({ title, group, pages, fix, severity });
@@ -33,6 +35,8 @@ export const RULES = {
   'note-space': rule('Remove the space before the footnote marker', 'Footnotes', '19', 'The raised footnote marker should follow the preceding punctuation without an intervening space.'),
   'note-marker': rule('Check the footnote marker’s position', 'Footnotes', '18–19', 'Normally place a superscript footnote marker immediately after punctuation. Midsentence notes can be appropriate.', 'review'),
   'note-label-space': rule('Use one space after the footnote number', 'Footnotes', '19, 32', 'Inside the footnote, put one space between the automatic note number and the note text. Remove tabs or additional spaces.'),
+  'ibid-form': rule('Review Ibid. punctuation', 'Citations', '33', 'Use Ibid. for the same source and locator, or Ibid., 25. for a changed page. Keep the period before the comma. Unusual locators and substantive notes may need manual review.', 'review'),
+  'ibid-source': rule('Check the preceding source for Ibid.', 'Citations', '33', 'Ibid. must refer to the single source in the immediately preceding note. Use a full or unambiguous short citation when that source is unclear. Also check that Ibid. is not the first footnote on a page.', 'review'),
   'bib-spacing': rule('Single-space bibliography entries', 'Bibliography', '22', 'Set each bibliography entry’s line spacing to Single. Leave one blank line between entries.'),
   'bib-indent': rule('Use a half-inch hanging indent', 'Bibliography', '22', 'Set Paragraph → Special → Hanging, By 0.5 inches. The first line should begin at the left margin.'),
   'bib-alignment': rule('Left-align bibliography entries', 'Bibliography', '22', 'Choose Align Left for the entries; center the bibliography heading.'),
@@ -48,14 +52,18 @@ export const RULES = {
   'quote-citation': rule('Check the source at the end of the block quotation', 'Quotations', '105–106', 'Put the source footnote at the end of the quotation. Scripture may use a parenthetical reference according to the assignment. Other citation forms need manual review.', 'review'),
   'translation-note': rule('Identify the Bible translation', 'Scripture', '39', 'At the first Scripture quotation, add a footnote identifying the translation’s full name, abbreviation, publication city, publisher, and year.', 'review'),
   'translation-details': rule('Complete the Bible translation declaration', 'Scripture', '39', 'Give the translation’s full name and abbreviation, followed by its publication city, publisher, and year. Verify these details against the edition you used.', 'review'),
+  'scripture-abbreviation': rule('Review Bible book abbreviations', 'Scripture', '39, 115–117', 'Use consistent book abbreviations. The manual recommends SBL forms without periods; full book names are also accepted here. Follow your instructor’s required convention.', 'review'),
+  'scripture-separators': rule('Review Scripture reference separators', 'Scripture', '38–39', 'Separate verses in the same chapter with commas. Use semicolons when the chapter or book changes. Check the intended passage before changing a locator.', 'review'),
+  'bible-bibliography': rule('Review the Bible edition in the bibliography', 'Scripture', '38', 'Bible editions are normally cited in the paper and translation declaration, without a bibliography entry. Check your assignment before removing one; scholarship about the Bible is a separate source.', 'review'),
+  'original-language-italics': rule('Keep Greek and Hebrew script upright', 'Typography', '102', 'Remove italics from Greek and Hebrew words written in their original script. Transliterated words follow a different convention. Review source titles, quoted formatting, and symbols in context.', 'review'),
   'footer-alignment': rule('Center page-number fields in the footer', 'Page numbering', '15', 'Center the footer paragraph containing the PAGE field. Check the title page and numbering sequence in Word.'),
 };
 
 export const NOT_CHECKED = [
   { title: 'Exact appearance of the finished pages', detail: 'Title-page vertical positions, heading gaps, page breaks, orphaned headings, actual page numbers, installed/substituted fonts, and the size and placement of visuals need a final PDF review.' },
-  { title: 'Citation accuracy and completeness', detail: 'Source identity, publication facts, quoted page numbers, full/short note forms, Ibid. on the same page, and missing attributions are not verified.' },
+  { title: 'Citation accuracy and completeness', detail: 'Publication facts, quoted page numbers, full/short note requirements, Ibid. on the same page, and missing attributions are not verified. Ibid. source recognition covers only ordinary book/journal notes, resolvable short notes, and chains; other forms need review.' },
   { title: 'Writing and interpretation', detail: 'Argument quality, theology, quotation fidelity, plagiarism, contextual capitalization, and the meaning of a passage require a reader.' },
-  { title: 'Other paper types and special formatting', detail: 'This release checks standard course papers. Dissertation, book-review, and annotated-bibliography requirements; lists, tables, equations, text boxes, and complex-script typography need separate review.' },
+  { title: 'Other paper types and special formatting', detail: 'This release checks standard course papers. Dissertation, book-review, and annotated-bibliography requirements; lists, tables, equations, text boxes, complex-script fonts, and transliterations need separate review.' },
   { title: 'Spacing between notes and bibliography entries', detail: 'Blank paragraphs, paragraph spacing, and page boundaries can interact. Check that there is a single blank line between entries and notes in the finished document.' },
   { title: 'Assignment requirements', detail: 'Your professor’s instructions and program supplements may override or add requirements. This is an independent aid, not an MBTS certification.' },
 ];
@@ -153,6 +161,24 @@ export function lintDocument(model) {
   const allParagraphs = [...model.paragraphs, ...model.footnotes.flatMap(n => n.paragraphs)];
   for (const p of allParagraphs) {
     if (['empty', 'table', 'list', 'front-matter', 'other'].includes(p.kind)) continue;
+    if (['body', 'footnote', 'quote'].includes(p.kind)) {
+      const clusters = scriptureReferences(referenceText(p));
+      for (const cluster of clusters) {
+        const abbreviations = cluster.refs.filter(r => r.name && (!r.full || r.name.endsWith('.')));
+        if (abbreviations.length) {
+          const unusual = abbreviations.filter(r => !r.standard);
+          check('scripture-abbreviation', !unusual.length, p,
+            unusual.map(r => `“${r.name}”: the recommended SBL form is “${r.book.abbreviations.join('” or “')}”.`).join(' ') + ' Instructor preferences take precedence.');
+        }
+        if (cluster.refs.length > 1) check('scripture-separators', !cluster.problems.length, p,
+          `Reference: “${cluster.text}”. ${cluster.problems.join(' ')}`);
+      }
+    }
+    if (['body', 'footnote'].includes(p.kind)) {
+      const scripts = originalLanguageRuns(p);
+      if (scripts.length) check('original-language-italics', scripts.every(r => !r.italic), p,
+        `Italic formatting was found on original-language text: ${scripts.filter(r => r.italic).map(r => `“${r.text}”`).join(', ')}.`);
+    }
     fonts(p, p.kind === 'footnote' ? 10 : 12);
     const i = indent(p);
     if (p.p.bidi) { review('bidi', 'Review right-to-left paragraph formatting', 'This paragraph uses bidirectional layout.', p, 'Review its alignment and original-language typography in Word.'); continue; }
@@ -236,10 +262,17 @@ export function lintDocument(model) {
       'The automatic note label could not be identified unambiguously, or the note uses a custom mark.', first,
       'Check that a single space separates the visible note label from its text.', '19, 32');
   }
+  for (const result of ibidChecks(model)) {
+    check('ibid-form', result.valid, result.note.paragraphs[0],
+      'The opening Ibid. citation does not match the ordinary Ibid. or Ibid., locator. form.');
+    check('ibid-source', result.resolved, result.note.paragraphs[0], result.reason);
+  }
   const bibliography = model.paragraphs.filter(p => p.kind === 'bibliography');
   let previous;
   for (const p of bibliography) {
     const record = bibliographyRecord(p, previous);
+    check('bible-bibliography', !isBibleEdition(p.text, record.title), p,
+      'This entry appears to identify a Bible edition, which is normally omitted from the bibliography.');
     if (record.repeated) check('bib-repeated-author', record.validRepeat && record.resolvedRepeat, p,
       !record.validRepeat ? 'The repeated-author marker is not six underscores, a period, and a space.' :
         'The author of the immediately preceding entry could not be resolved.');

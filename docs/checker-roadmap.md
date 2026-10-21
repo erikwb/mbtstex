@@ -4,7 +4,7 @@ Audited against the supplied fourth-edition Midwestern Style Manual on
 20 October 2026. Page references are printed page numbers. The manual is not
 distributed with the project.
 
-The website currently has **44 rule types**. The original inventory identified
+The website currently has **50 rule types**. The original inventory identified
 **83 items**: new checks, improvements to existing checks, and rules for
 additional document profiles. Progress is recorded below; 83 is not the number
 of remaining items. This is a development inventory, not an official MBTS rule
@@ -43,6 +43,27 @@ additional parser and real-application fixtures in the test suite.
 | Q02 | Reviews the colon before a recognized block quotation | Depends on correct paragraph classification |
 | Q03 | Reviews enclosing quotation marks while preserving internal marks | Nested quotation interpretation needs context |
 | Q04 | Reviews a terminal footnote or parenthetical Scripture reference across a block's paragraphs | Inline quotations, source identity, and other paper profiles remain open |
+
+## Second implementation batch
+
+Six more review checks cover Scripture, Ibid., and original-language italics.
+The canonical book-name catalogue is shared in scope with the LaTeX module;
+tests check their agreement. Regression cases and exceptions are in
+[references.test.js](../web/tests/references.test.js).
+
+| Items | Implemented behavior | Remaining limits |
+| --- | --- | --- |
+| S03 | Reviews recognized alternative abbreviations and periods against the recommended SBL forms | Instructor preferences take precedence; full names are accepted; unknown abbreviations and custom conventions remain open |
+| S04 | Checks commas/semicolons between recognized verse, chapter, and book locators | Does not validate verse existence or every punctuation form; ambiguous prose numbers are skipped |
+| S06 | Reviews recognizable Bible-edition entries in the bibliography | Unfamiliar editions, study editions, and assignment exceptions need context; secondary scholarship is a separate source |
+| C03 | Resolves Ibid. through ordinary full book/journal notes, unambiguous short notes, and Ibid. chains in reference order | Missing notes, commentary, multiple sources, and unsupported forms produce review; complete citation syntax/source matching remains open |
+| C05 | Reviews the opening Ibid. spelling/period/comma and ordinary numeric/Roman locators | Unusual locators and embedded uses need review; C04 (first note on a page) still requires page-layout evidence |
+| Q09 | Reviews Greek/Hebrew italics in body text and notes, including complex-script properties and style inheritance | Transliterations, source-title exceptions, symbols, rendered fonts, and quoted formatting still need context |
+
+These checks preserve recognizable inline quotations. Scripture checks also
+exclude italicized note titles and inspect only the terminal parenthetical of
+a recognized block quotation. Cross-paragraph quotations and ambiguous source
+boundaries remain limitations. None of these additions verifies pagination.
 
 ## Implementation order
 
