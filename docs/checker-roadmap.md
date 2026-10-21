@@ -4,7 +4,7 @@ Audited against the supplied fourth-edition Midwestern Style Manual on
 20 October 2026. Page references are printed page numbers. The manual is not
 distributed with the project.
 
-The website currently has **55 rule types**. The original inventory identified
+The website currently has **60 rule types**. The original inventory identified
 **83 items**: new checks, improvements to existing checks, and rules for
 additional document profiles. Progress is recorded below; 83 is not the number
 of remaining items. This is a development inventory, not an official MBTS rule
@@ -80,11 +80,33 @@ source forms are explicitly left for review.
 | C09 | Checks book city/publisher/year and journal volume/date/applicable pages; accepts online articles without pagination | Facts, source-specific issue requirements, editors/translators, complex editions, and other metadata remain open |
 | C12 | Reviews missing, duplicate, or mismatched recognizable bibliography entries; allows additional consulted works and Bible exceptions | Chapters, websites, other source-specific exceptions, and unrecognized bibliography entries need manual matching |
 
-The source matcher handles up to three named personal authors, identifiable
+At this stage, the source matcher handled up to three named personal authors, identifiable
 initials, repeated-author notation, simple edition labels, and semicolon-separated
 sources. It does not fetch URLs or verify publication facts. Edited-volume
-chapters and websites are the next source types to add; PDF layout checks and
+chapters and websites are added in the fourth batch below; PDF layout checks and
 other document profiles remain separate work.
+
+## Fourth implementation batch
+
+Existing source checks now recognize edited-book chapters and ordinary website
+content. Five additional review rules address citation mechanics and the website
+bibliography exception. The source fixture includes a chapter, a website, and a
+four-author book, with both synthetic and LibreOffice-resaved copies. Browser
+tests exercise the new findings, export, and local-only processing.
+
+| Items | Implemented behavior | Remaining limits |
+| --- | --- | --- |
+| C01, C02, C08, C09, C12 | Extends full/short citations, metadata, title typography, and matching to chapters and websites; distinguishes chapter authors, containing books, editors, and URLs | Translated/standalone edited books, blogs/social media, complex names, anonymous short notes, and other source types remain partial or unsupported |
+| C06 | Reviews identifiable name order, author/title delimiters, punctuation inside quoted titles, and chapter in/editor labels | General punctuation parsing, unusual title punctuation, and ambiguous name boundaries need review; organization web labels are not forced into personal-name order |
+| C07 | Recognizes longer personal-author lists; checks first-author et al. in book notes and complete bibliography lists | Unknown author counts, name equivalence, complex names, and conventions for other source types need review |
+| C10 | Reviews book/chapter versus journal page delimiters, ordinary locator syntax, p./pp. prefixes, and backwards numeric ranges | Locator facts, all volume/edition forms, Roman-range ordering, and source-specific exceptions remain open |
+| C11 | Preserves semicolons in titles/URLs and recognizes ordinary source separators; flags two independently recognizable full sources joined without a semicolon | Ambiguous commentary, longer incorrectly joined lists, and unfamiliar forms stay unverified |
+| C15 | Reviews missing/mismatched website bibliography entries with the critical-or-frequent condition explicit | Importance/frequency requires judgment; other source-specific inclusion exceptions remain open |
+
+Website dates and other metadata are requested only when available. A visible
+HTTP(S) URL is required for website recognition; the linter never retrieves it.
+The new rules do not verify publication facts or rendered pages. Translated and
+standalone edited books, other source variants, and PDF layout remain on the backlog.
 
 ## Implementation order
 

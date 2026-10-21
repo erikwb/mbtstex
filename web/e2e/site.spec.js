@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { fixtureParts, zipParts, makeDemo } from '../lib/demo.js';
+import { sourceExpansionParts } from '../tests/fixtures/source-expansion.js';
 
 const file = (bytes, name = 'my-paper.docx') => ({ name, mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', buffer: Buffer.from(bytes) });
 
@@ -59,7 +60,7 @@ test('Scripture, Ibid., and original-language findings reach the report and expo
     .replace('<w:r><w:t xml:space="preserve">The goal is', '<w:r><w:rPr><w:i/></w:rPr><w:t>ἀγάπη </w:t></w:r><w:r><w:t xml:space="preserve">The goal is');
   parts['word/footnotes.xml'] = parts['word/footnotes.xml'].replace('Unless otherwise specified, all Bible references in this paper are to the English Standard Version (ESV) (Wheaton, IL: Crossway, 2025).', 'Ibid, 24.');
   await page.goto('/');
-  await expect(page.locator('#rule-count')).toHaveText('55');
+  await expect(page.locator('#rule-count')).toHaveText('60');
   await page.locator('#file-input').setInputFiles(file(zipParts(parts), 'reference-checks.docx'));
   await expect(page.locator('#report')).toBeVisible();
   const titles = ['Review Bible book abbreviations', 'Review Scripture reference separators',
@@ -93,8 +94,32 @@ test('source citation findings reach the report and export with their scope limi
   for (const title of titles) expect(text).toContain(title);
   expect(text).toContain('publisher');
   expect(text).toContain('2 different works');
-  expect(text).toContain('Chapters, websites, edited/translated works');
+  expect(text).toContain('Translated works, blogs/social media');
   expect(text).toContain('Publication facts');
+});
+
+test('chapters, websites, and citation mechanics work locally in the browser', async ({ page }) => {
+  const requests = [], errors = [];
+  page.on('request', r => requests.push({ url: r.url(), method: r.method() }));
+  page.on('pageerror', e => errors.push(e.message));
+  await page.goto('/');
+  await page.locator('#file-input').setInputFiles(file(zipParts(sourceExpansionParts()), 'more-sources.docx'));
+  await expect(page.locator('#report')).toBeVisible();
+  await expect(page.locator('#error-count')).toHaveText('0');
+  await expect(page.locator('#review-count')).toHaveText('0');
+  await page.getByRole('button', { name: 'Clear document' }).click();
+  await page.locator('#file-input').setInputFiles(file(zipParts(sourceExpansionParts({ mistakes: true })), 'more-sources.docx'));
+  await expect(page.locator('#report')).toBeVisible();
+  const titles = ['Review citation punctuation and name order', 'Review the book’s author list',
+    'Review citation page and volume locators', 'Separate sources within a note', 'Review whether the website needs a bibliography entry'];
+  for (const title of titles) await expect(page.locator('#findings').getByRole('heading', { name: title, exact: true })).toBeVisible();
+  const pending = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download report' }).click();
+  const text = await readFile(await (await pending).path(), 'utf8');
+  for (const title of titles) expect(text).toContain(title);
+  expect(text).toContain('critical to the paper or used frequently');
+  expect(requests.every(r => new URL(r.url).hostname === '127.0.0.1' && r.method === 'GET')).toBe(true);
+  expect(errors).toEqual([]);
 });
 
 test('invalid and damaged documents show a recoverable error', async ({ page }) => {

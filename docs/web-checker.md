@@ -2,7 +2,7 @@
 
 The [public checker](https://erikwb.github.io/mbtstex/) lives in `web/` and is
 published by GitHub Pages. It is an early release for **standard course papers**
-using the fourth-edition Midwestern Style Manual (2021), with 55 rule types.
+using the fourth-edition Midwestern Style Manual (2021), with 60 rule types.
 It does not certify a paper's compliance or replace assignment instructions.
 
 The [coverage roadmap](checker-roadmap.md) lists proposed additions, stronger
@@ -26,7 +26,7 @@ percentage. "No findings" means only that the checks that ran found no issues.
 Locations are paragraph order, not rendered page numbers. Footnotes are labeled
 by reference order; custom marks or numbering restarts may differ from Word's
 visible numbers. Only applicable, resolvable rules run, so the evaluated-rule
-count may be smaller than 55.
+count may be smaller than 60.
 
 ## Processing and privacy
 
@@ -68,14 +68,26 @@ manual page range and suggested correction beside each rule. It covers:
   and Ibid. chains are recognized in body-reference order. Missing notes,
   commentary, multiple sources, and unfamiliar forms require review.
 - First full citations and ambiguous shortened notes for recognized ordinary
-  books and journal articles, in body-reference order. Matching cited works to
-  bibliography entries includes recognized author, title, year, and edition
-  details. Extra consulted works are allowed, and Bible references/declarations
-  are exempt from this matching requirement.
-- Publication fields for those books and articles, and italics/quotation marks
+  books, journal articles, edited-book chapters, and website content, in
+  body-reference order. Matching bibliography entries includes recognized
+  author, title, year, edition, containing book/editor, and URL details.
+  Extra consulted works are allowed, and Bible references/declarations
+  are exempt from this matching requirement. Website bibliography inclusion is
+  a separate contextual review: entries are needed if critical or used frequently.
+- Publication fields for those sources, and italics/quotation marks
   for their full and resolved short titles. Online journal citations with an
   access URL or recognized database may lack pagination. These are review
   checks; missing fields and uncertain matches need a reader.
+- Chapter editors and bibliography page ranges; upright website names and
+  available website dates/details. Anonymous and organization-named full web
+  citations are accepted; missing authors, dates, or sponsors are not invented.
+- Recognizable personal-name order, author/title punctuation, quoted-title
+  punctuation, and chapter editor labels. Four-or-more-author books use et al.
+  in notes and full lists in the bibliography; unverified author counts get review.
+- Page/volume locator syntax and backwards numeric ranges, accepting abbreviated
+  ranges and ordinary Roman pages. Semicolon-separated sources are recognized,
+  and two clearly joined full citations can trigger a missing-separator review.
+  Punctuation within titles, publication groups, and URLs is preserved.
 - Bibliography heading, single spacing, hanging indent, alignment, final
   periods, an explicit new-page advisory, surname ordering, title ordering for
   a recognized repeated author, and optional repeated-author notation.
@@ -119,7 +131,7 @@ inherit the preceding recognized author; repeating the name is also accepted.
 Ambiguous author/title boundaries are disclosed for review. English titles
 for the same author are compared without an initial A, An, or The.
 
-Source recognition covers ordinary personal names, up to three named authors,
+Source recognition covers ordinary personal names and longer named author lists,
 identifiable initials, repeated-author notation, simple edition labels, and
 multiple citations separated by semicolons. Short notes are compared with the
 whole recognized source catalogue, including works first cited later in the
@@ -137,9 +149,17 @@ for review, rather than treated as successfully checked.
   A future layout checker will use a matching PDF freshly exported from Word,
   not assume that another converter reproduces Word's pagination.
 - **Citations:** the 66 LaTeX citation variants are not a Word citation parser.
-  Recognition does not yet cover edited-volume chapters, websites, translated
-  or edited works, anonymous/corporate authors, complex author lists, or every
+  Recognition does not yet cover translated books, standalone edited books,
+  blogs/social media, anonymous/corporate book authors, complex names, or every
   punctuation and locator form. Initials are not expanded to full names.
+  Web recognition requires a visible HTTP(S) URL; abbreviated date forms,
+  anonymous short notes, and unavailable metadata may need review. Link targets
+  are not fetched. The checker cannot infer a website's importance to a paper,
+  whether a date is actually available, or whether two differently named authors
+  are the same person. Uninverted web author labels may be organizations, so
+  personal-name inversion is not imposed on them. Missing source separators
+  are detected only for two independently recognizable full citations following
+  a book, chapter, or journal citation; other combined forms remain partial.
   Complex titles and embedded commentary can obscure source boundaries;
   unreferenced footnotes are outside the source-matching sequence. Source
   facts, Ibid. page placement, locator accuracy, attribution, and completeness

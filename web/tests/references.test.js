@@ -202,5 +202,5 @@ test('complex-script italics inherit, toggle through styles, and respect direct 
 test('reports retain the explicit limitation on Ibid. page placement', () => {
   const report = lint(notes([book, 'Ibid.']));
   assert.match(reportText(report), /Ibid\. on the same page/);
-  assert.equal(report.stats.rulesAvailable, 55);
+  assert.equal(report.stats.rulesAvailable, 60);
 });

@@ -16,6 +16,10 @@ const articleNote = (title = 'Listening Carefully', author = 'Anne Aster', detai
   [run(`${author}, “${title},” `), run('Journal of Invented Studies', true), run(' ' + detail)];
 const articleEntry = (title = 'Listening Carefully', author = 'Aster, Anne', detail = '12, no. 2 (2024): 20–30.') =>
   [run(`${author}. “${title}.” `), run('Journal of Invented Studies', true), run(' ' + detail)];
+const chapterNote = () => [run('Anne Aster, “The Emergency Casserole,” in '), run('Care after Coffee', true), run(', ed. Bennett B. Brew (St. Louis: Fictional Press, 2024), 24.')];
+const chapterEntry = () => [run('Aster, Anne. “The Emergency Casserole.” In '), run('Care after Coffee', true), run(', edited by Bennett B. Brew, 20–30. St. Louis: Fictional Press, 2024.')];
+const webNote = (url = 'https://example.invalid/care', date = 'October 1, 2024, ') => `Anne Aster, “A Committee of One,” Cedar.org, ${date}${url}.`;
+const webEntry = (url = 'https://example.invalid/care') => `Aster, Anne. “A Committee of One.” Cedar.org. October 1, 2024. ${url}.`;
 const short = (title = '', author = 'Aster', type = 'book') =>
   [run(author + ', '), ...(title ? [run(type === 'journal' ? `“${title},” ` : title + ', ', type === 'book')] : []), run('25.')];
 function paper(notes, entries) {
@@ -142,7 +146,9 @@ test('inherited character-style italics count as title formatting', () => {
 });
 
 test('multiple sources in one note retain title boundaries and source order', () => {
-  const notes = [[...bookNote(), run('; '), ...short('Patient Ministry'), run('; '), ...articleNote('Listening; Carefully')]];
+  const first = bookNote(); first[2].text = first[2].text.replace(/\.$/, '');
+  const shortened = short('Patient Ministry'); shortened.at(-1).text = shortened.at(-1).text.replace(/\.$/, '');
+  const notes = [[...first, run('; '), ...shortened, run('; '), ...articleNote('Listening; Carefully')]];
   const parts = paper(notes, [bookEntry(), articleEntry('Listening; Carefully')]);
   assert.deepEqual(citationIssues(parts), []);
 });
@@ -171,9 +177,8 @@ test('ordinary prose notes and explanatory text after a book citation are not mi
 
 test('unsupported source types are disclosed without assuming bibliography inclusion or missing book fields', () => {
   for (const note of [
-    'Anne Aster, “An Essay,” in Edited Studies, ed. Bennett Brew (Example City: Fictional Press, 2024), 24.',
     'Anne Aster, “An Invented Study” (PhD diss., Example University, 2024), 24.',
-    'Anne Aster, “A Web Article,” Example Site, https://example.invalid/article.',
+    'Anne Aster, “A Web Article,” Example Blog (blog), https://example.invalid/article.',
   ]) {
     const parts = paper([note], []);
     assert.equal(issues(parts, 'unverified-citation').length, 1, note);
@@ -216,4 +221,193 @@ test('unrecognized bibliography entries remain visible even when another source 
   const parts = paper([bookNote()], [bookEntry(), 'An unusual source whose form is not understood.']);
   assert.equal(issues(parts, 'unverified-citation').length, 1);
   assert.equal(issues(parts, 'citation-bibliography').length, 0);
+});
+
+test('edited-book chapters match full notes, short notes, and bibliography forms', () => {
+  assert.deepEqual(citationIssues(paper([chapterNote(), short('Emergency Casserole', 'Aster', 'journal')], [chapterEntry()])), []);
+});
+
+test('chapter recognition preserves initials in editors and periods in publication cities', () => {
+  const note = chapterNote(), entry = chapterEntry();
+  note[2].text = note[2].text.replace('Bennett B. Brew', 'B. B. Brew and Clara Cedar');
+  entry[2].text = entry[2].text.replace('Bennett B. Brew', 'B. B. Brew and Clara Cedar');
+  assert.deepEqual(citationIssues(paper([note], [entry])), []);
+});
+
+test('chapter bibliography entries need the full chapter range and recognizable editor', () => {
+  const entry = chapterEntry(); entry[2].text = entry[2].text.replace(', 20–30', '');
+  assert.match(issues(paper([chapterNote()], [entry]), 'citation-fields')[0].observed, /chapter page range/);
+  const note = chapterNote(); note[2].text = note[2].text.replace(', ed. Bennett B. Brew', '');
+  assert.match(issues(paper([note], [chapterEntry()]), 'citation-fields')[0].observed, /editor name/);
+});
+
+test('chapter matching distinguishes containing books and editors', () => {
+  for (const [from, to] of [['Care after Coffee', 'Care before Coffee'], ['Bennett B. Brew', 'Clara Cedar']]) {
+    const entry = chapterEntry().map(r => ({ ...r, text: r.text.replace(from, to) }));
+    assert.equal(issues(paper([chapterNote()], [entry]), 'citation-bibliography').length, 1);
+  }
+});
+
+test('chapter titles stay upright and quoted while containing book titles are italic', () => {
+  const note = chapterNote(); note[0].italic = true; note[1].italic = false;
+  assert.equal(issues(paper([note], [chapterEntry()]), 'citation-titles').length, 1);
+  const plain = chapterNote(); plain[0].text = plain[0].text.replace(/[“”]/g, '');
+  assert.match(issues(paper([plain], [chapterEntry()]), 'citation-titles')[0].observed, /quotation marks/);
+});
+
+test('chapter note and bibliography use their own in/editor labels', () => {
+  const note = chapterNote(); note[0].text = note[0].text.replace('in ', 'In '); note[2].text = note[2].text.replace('ed.', 'edited by');
+  const entry = chapterEntry(); entry[2].text = entry[2].text.replace('edited by', 'ed.');
+  assert.equal(issues(paper([note], [entry]), 'citation-syntax').length, 2);
+});
+
+test('a chapter occupying one page can have a single-page bibliography locator', () => {
+  const entry = chapterEntry(); entry[2].text = entry[2].text.replace('20–30', '24');
+  assert.deepEqual(citationIssues(paper([chapterNote()], [entry])), []);
+});
+
+test('web articles match their bibliography and support short titles without invented page numbers', () => {
+  assert.deepEqual(citationIssues(paper([webNote(), 'Aster, “Committee of One.”'], [webEntry()])), []);
+});
+
+test('website bibliography inclusion remains a contextual review, not a missing-entry error', () => {
+  const parts = paper([webNote()], []);
+  assert.equal(issues(parts, 'citation-bibliography').length, 0);
+  const found = issues(parts, 'citation-web-bibliography');
+  assert.equal(found.length, 1); assert.equal(found[0].severity, 'review');
+  assert.match(found[0].observed, /only if.*critical.*frequently/);
+});
+
+test('missing web publication dates are requested only if available', () => {
+  const found = issues(paper([webNote('https://example.invalid/care', '')], []), 'citation-fields');
+  assert.equal(found.length, 1); assert.match(found[0].observed, /date \(if available\)/);
+  assert.doesNotMatch(found[0].observed, /city|publisher/);
+});
+
+test('anonymous and organization-named web pages do not require invented personal authors', () => {
+  for (const label of ['', 'Cedar Council', 'Cedar.org']) {
+    const note = webNote().replace('Anne Aster, ', label ? label + ', ' : '');
+    const entry = webEntry().replace('Aster, Anne. ', label ? label + '. ' : '');
+    assert.deepEqual(citationIssues(paper([note], [entry])), [], label);
+  }
+});
+
+test('website names stay upright and sponsor repetition is not required', () => {
+  const runs = [run('Anne Aster, “A Committee of One,” '), run('Cedar.org', true), run(', October 1, 2024, https://example.invalid/care.')];
+  assert.match(issues(paper([runs], [webEntry()]), 'citation-titles')[0].observed, /website name should be upright/);
+  assert.deepEqual(citationIssues(paper([webNote().replace('Cedar.org, ', 'Cedar.org, Example Foundation, ')], [webEntry().replace('Cedar.org. ', 'Cedar.org. Example Foundation. ')])), []);
+});
+
+test('web matching preserves URL path case and query values', () => {
+  for (const url of ['https://example.invalid/Care', 'https://example.invalid/care?version=2']) {
+    assert.equal(issues(paper([webNote()], [webEntry(url)]), 'citation-web-bibliography').length, 1);
+  }
+});
+
+test('URL semicolons are not treated as separators between source citations', () => {
+  const url = 'https://example.invalid/care;version=2?a=1;b=2';
+  assert.deepEqual(citationIssues(paper([webNote(url)], [webEntry(url)])), []);
+});
+
+test('web citations without recognizable URLs stay explicitly unverified', () => {
+  const note = webNote().replace('https://example.invalid/care.', '');
+  assert.equal(issues(paper([note], []), 'unverified-citation').length, 1);
+});
+
+test('full-note and bibliography name order and author/title punctuation are reviewed', () => {
+  const note = bookNote(); note[0].text = 'Aster, Anne, ';
+  const entry = bookEntry(); entry[0].text = 'Anne Aster. ';
+  assert.equal(issues(paper([note], [entry]), 'citation-syntax').length, 2);
+  note[0].text = 'Anne Aster. '; entry[0].text = 'Aster, Anne, ';
+  assert.equal(issues(paper([note], [entry]), 'citation-syntax').length, 2);
+});
+
+test('full article and chapter title punctuation belongs inside closing quotes', () => {
+  for (const [makeNote, makeEntry] of [[articleNote, articleEntry], [chapterNote, chapterEntry]]) {
+    const note = makeNote(); note[0].text = note[0].text.replace(',”', '”,');
+    const entry = makeEntry(); entry[0].text = entry[0].text.replace('.”', '”.');
+    assert.equal(issues(paper([note], [entry]), 'citation-syntax').length, 2);
+  }
+});
+
+const fourAuthors = 'Anne Aster, Bennett Brew, Clara Cedar, and Daniel Dove';
+const fourAuthorEntry = 'Aster, Anne, Bennett Brew, Clara Cedar, and Daniel Dove';
+test('four-author books use et al. in notes and a complete bibliography author list', () => {
+  assert.deepEqual(citationIssues(paper([bookNote('The Patient Ministry', 'Anne Aster et al.')], [bookEntry('The Patient Ministry', fourAuthorEntry)])), []);
+  const parts = paper([bookNote('The Patient Ministry', fourAuthors)], [bookEntry('The Patient Ministry', 'Aster, Anne et al.')]);
+  assert.equal(issues(parts, 'citation-authors').length, 2);
+});
+
+test('et al. does not silently stand for one, two, or three book authors', () => {
+  for (const author of ['Aster, Anne', 'Aster, Anne, and Bennett Brew', 'Aster, Anne, Bennett Brew, and Clara Cedar']) {
+    assert.equal(issues(paper([bookNote('The Patient Ministry', 'Anne Aster et al.')], [bookEntry('The Patient Ministry', author)]), 'citation-authors').length, 1);
+  }
+});
+
+test('an unverifiable abbreviated author list remains a review item', () => {
+  assert.match(issues(paper([bookNote('The Patient Ministry', 'Anne Aster et al.')], []), 'citation-authors')[0].observed, /No complete matching author list/);
+});
+
+test('et al punctuation is checked without preventing a recognized source match', () => {
+  const parts = paper([bookNote('The Patient Ministry', 'Anne Aster et al')], [bookEntry('The Patient Ministry', fourAuthorEntry)]);
+  assert.match(issues(parts, 'citation-syntax')[0].observed, /et al/);
+  assert.equal(issues(parts, 'citation-bibliography').length, 0);
+});
+
+test('page locators accept abbreviated ranges, roman pages, and volume-page references', () => {
+  for (const locator of ['311–12', '100-104', 'xiv', 'xiv–xvi', '2:24–27']) {
+    const note = bookNote(); note[2].text = note[2].text.replace('24.', locator + '.');
+    assert.deepEqual(citationIssues(paper([note], [bookEntry()])), [], locator);
+  }
+});
+
+test('backwards ranges and p/pp prefixes are reviewed in source notes', () => {
+  for (const locator of ['30–20', '211–09', 'pp. 24–25', 'p. 24']) {
+    const note = bookNote(); note[2].text = note[2].text.replace('24.', locator + '.');
+    assert.equal(issues(paper([note], [bookEntry()]), 'citation-locators').length, 1, locator);
+  }
+});
+
+test('book and journal page delimiters follow the source form', () => {
+  const note = bookNote(); note[2].text = note[2].text.replace('), 24', '): 24');
+  assert.equal(issues(paper([note], [bookEntry()]), 'citation-locators').length, 1);
+  const article = articleNote(); article[2].text = article[2].text.replace('): 24', '), 24');
+  assert.equal(issues(paper([article], [articleEntry()]), 'citation-locators').length, 1);
+});
+
+test('missing semicolons between two independently recognized sources are reviewed', () => {
+  for (const separator of [' ', ', ', ' and ']) {
+    const note = bookNote();
+    if (separator.startsWith(',')) note[2].text = note[2].text.replace(/\.$/, '');
+    const parts = paper([[...note, run(separator), ...articleNote()]], [bookEntry(), articleEntry()]);
+    assert.equal(issues(parts, 'citation-separators').length, 1, separator);
+  }
+});
+
+test('valid multiple-source notes accept an and prefix after the final semicolon', () => {
+  const first = bookNote(); first[2].text = first[2].text.replace(/\.$/, '');
+  const parts = paper([[...first, run('; and '), ...chapterNote()]], [bookEntry(), chapterEntry()]);
+  assert.deepEqual(citationIssues(parts), []);
+});
+
+test('ordinary commentary and commas within titles do not trigger source separator advice', () => {
+  const parts = paper([[...bookNote('Listen, Then Listen Again'), run(' This is an explanation, and it is not another source.')]], [bookEntry('Listen, Then Listen Again')]);
+  assert.equal(issues(parts, 'citation-separators').length, 0);
+});
+
+test('paginated online journal citations retain pages before their URL or database', () => {
+  for (const medium of ['https://example.invalid/journal', 'JSTOR']) {
+    assert.deepEqual(citationIssues(paper([articleNote('Listening Carefully', 'Anne Aster', `12 (2024): 24, ${medium}.`)],
+      [articleEntry('Listening Carefully', 'Aster, Anne', `12 (2024): 20–30. ${medium}.`)])), []);
+  }
+});
+
+test('unusual locator labels are reviewed rather than partially read as roman page numbers', () => {
+  const note = bookNote(); note[2].text = note[2].text.replace('24.', 'chap. 3.');
+  assert.equal(issues(paper([note], [bookEntry()]), 'citation-locators').length, 1);
+});
+
+test('a source locator does not need a period immediately before its separating semicolon', () => {
+  const parts = paper([[...bookNote(), run('; '), ...chapterNote()]], [bookEntry(), chapterEntry()]);
+  assert.match(issues(parts, 'citation-separators')[0].observed, /semicolon alone/);
 });
